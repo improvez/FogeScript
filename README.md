@@ -1,5 +1,5 @@
 # FogeScript
-...
+
 Aqui está o dicionário completo da linguagem SenhoraC em formato de texto limpo e organizado por tópicos, totalmente livre de conflitos e duplicatas:
 
 Dicionário Oficial da Linguagem SenhoraC
