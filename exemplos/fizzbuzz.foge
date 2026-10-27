@@ -1,0 +1,16 @@
+// FizzBuzz da Assembleia: múltiplos de 3 e 5 viram meme
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ N = 1;
+    ENQUANTO TIVER CORRENDO (N <= 15)
+        SE A SENHORA NÃO É FUNCIONÁRIA (N % 15 == 0)
+            TEMOS GRAVADO!("TEMOS GRAVADO!");
+        ENTÃO A SENHORA É O QUÊ? (N % 3 == 0)
+            TEMOS GRAVADO!("SENHORA?");
+        ENTÃO A SENHORA É O QUÊ? (N % 5 == 0)
+            TEMOS GRAVADO!("VOLTA AQUI!");
+        E TÁ CORRENDO POR QUÊ?
+            TEMOS GRAVADO!(N);
+        FUGIU
+        N++;
+    FUGIU
+FUGIU

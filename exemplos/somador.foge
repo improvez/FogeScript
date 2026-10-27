@@ -1,0 +1,18 @@
+// O somador da BIRL, agora na Assembleia
+NÃO, EU NUNCA FIZ ISSO SOMAR(A, B)
+    CHEGA DE CORRER A + B;
+FUGIU
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ A, B, RES;
+    TEMOS GRAVADO!("Me passa dois números aí, senhora:");
+    QUER CONVERSAR COMIGO?(A, B);
+    RES = CHAMA A SENHORA SOMAR(A, B);
+    TEMOS GRAVADO!("O resultado é", RES);
+
+    SE A SENHORA NÃO É FUNCIONÁRIA (RES == 37)
+        TEMOS GRAVADO!("37! Tá gravado!");
+    E TÁ CORRENDO POR QUÊ?
+        TEMOS GRAVADO!("Volta aqui, senhora!");
+    FUGIU
+FUGIU

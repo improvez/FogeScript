@@ -1,0 +1,18 @@
+// Tratando erros: a senhora fica nervosa, mas o programa continua
+NÃO, EU NUNCA FIZ ISSO DIVIDIR(A, B)
+    SE A SENHORA NÃO É FUNCIONÁRIA (B == 0)
+        ME DEIXA EM PAZ! "não divido por zero!";
+    FUGIU
+    CHEGA DE CORRER A / B;
+FUGIU
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    DEIXA EU TE PERGUNTAR
+        TEMOS GRAVADO!("10 / 4 =", CHAMA A SENHORA DIVIDIR(10, 4));
+        TEMOS GRAVADO!("10 / 0 =", CHAMA A SENHORA DIVIDIR(10, 0));
+        TEMOS GRAVADO!("Essa linha nunca aparece");
+    A SENHORA TÁ NERVOSA? (ERRO)
+        TEMOS GRAVADO!("A senhora ficou nervosa:", ERRO);
+    FUGIU
+    TEMOS GRAVADO!("Fim da sessão.", TÁ GRAVADO, NÃO TÁ GRAVADO);
+FUGIU

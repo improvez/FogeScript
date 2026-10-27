@@ -1,0 +1,18 @@
+// Listas, VOLTA AQUI! (break) e DEIXA ELA CORRER (continue)
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ FUNCIONARIOS = ["Ana", "Beto", "Senhora", "Carla"];
+    A SENHORA FEZ PRESENTES = [];
+
+    SENHORA? SENHORA?! (A SENHORA FEZ I = 0; I < TAMANHO(FUNCIONARIOS); I++)
+        SE A SENHORA NÃO É FUNCIONÁRIA (FUNCIONARIOS[I] == "Beto")
+            DEIXA ELA CORRER;   // Beto está de férias
+        FUGIU
+        SE A SENHORA NÃO É FUNCIONÁRIA (FUNCIONARIOS[I] == "Senhora")
+            TEMOS GRAVADO!("Achamos a senhora na posição", I);
+            VOLTA AQUI!;        // para o laço
+        FUGIU
+        PRESENTES[TAMANHO(PRESENTES)] = FUNCIONARIOS[I];
+    FUGIU
+
+    TEMOS GRAVADO!("Bateram o ponto:", PRESENTES);
+FUGIU

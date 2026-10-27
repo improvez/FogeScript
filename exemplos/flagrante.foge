@@ -1,0 +1,85 @@
+/*
+    O FLAGRANTE NA ASSEMBLEIA
+    Um programa que usa a linguagem inteira e conta a história do vídeo.
+    Entrada: o nome da senhora e o salário dela, uma resposta por linha.
+*/
+
+A SENHORA FEZ dias_da_semana = ["segunda", "terça", "quarta", "quinta", "sexta", "sábado", "domingo"];
+
+// "Não, eu nunca fiz isso"... bater o ponto. Só na quarta-feira.
+NÃO, EU NUNCA FIZ ISSO bater_ponto(dia)
+    SE A SENHORA NÃO É FUNCIONÁRIA (dia != "quarta")
+        CHEGA DE CORRER NÃO TÁ GRAVADO;
+    FUGIU
+    CHEGA DE CORRER TÁ GRAVADO;
+FUGIU
+
+NÃO, EU NUNCA FIZ ISSO ganhar_por_dia(salario)
+    SE A SENHORA NÃO É FUNCIONÁRIA (salario <= 0)
+        ME DEIXA EM PAZ! "esse salário não existe";
+    FUGIU
+    CHEGA DE CORRER INTEIRO(salario / 22);
+FUGIU
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ nome, salario;
+    A SENHORA FEZ presencas = 0;
+    A SENHORA FEZ faltas = [];
+    A SENHORA FEZ pega_no_flagra = NÃO TÁ GRAVADO;
+
+    TEMOS GRAVADO!("Repórter: Bom dia! Como a senhora se chama?");
+    QUER CONVERSAR COMIGO?(nome);
+    TEMOS GRAVADO!("Repórter: E quanto a senhora ganha por mês?");
+    QUER CONVERSAR COMIGO?(salario);
+
+    // A folha de ponto: a repórter chama a senhora dia após dia.
+    SENHORA? SENHORA?! (A SENHORA FEZ i = 0; i < TAMANHO(dias_da_semana); i++)
+        A SENHORA FEZ dia = dias_da_semana[i];
+        SE A SENHORA NÃO É FUNCIONÁRIA (dia == "sábado" || dia == "domingo")
+            DEIXA ELA CORRER;   // fim de semana ninguém bate ponto
+        FUGIU
+        SE A SENHORA NÃO É FUNCIONÁRIA (CHAMA A SENHORA bater_ponto(dia))
+            presencas++;
+        E TÁ CORRENDO POR QUÊ?
+            faltas[TAMANHO(faltas)] = dia;
+        FUGIU
+    FUGIU
+
+    TEMOS GRAVADO!("Presenças da semana:", presencas, "| Faltas:", faltas);
+
+    // Quanto a Assembleia paga por cada dia que ela não foi?
+    DEIXA EU TE PERGUNTAR
+        A SENHORA FEZ por_dia = CHAMA A SENHORA ganhar_por_dia(NUMERO(salario));
+        TEMOS GRAVADO!("Cada falta custou R$ " + TEXTO(por_dia * TAMANHO(faltas)) + " pra Assembleia.");
+    A SENHORA TÁ NERVOSA? (motivo)
+        TEMOS GRAVADO!("Repórter: A senhora tá nervosa? Disse que", motivo);
+    FUGIU
+
+    // A perseguição: ela corre, a repórter vai atrás.
+    A SENHORA FEZ distancia = 12;
+    A SENHORA FEZ folego = 5;
+    ENQUANTO TIVER CORRENDO (folego > 0)
+        TEMOS GRAVADO!("SENHORA?! (" + TEXTO(distancia) + " metros)");
+        distancia -= 4;
+        folego--;
+        SE A SENHORA NÃO É FUNCIONÁRIA (distancia <= 0)
+            pega_no_flagra = TÁ GRAVADO;
+            VOLTA AQUI!;
+        FUGIU
+    FUGIU
+
+    // O veredito.
+    SE A SENHORA NÃO É FUNCIONÁRIA (presencas == 0)
+        TEMOS GRAVADO!("Veredito:", nome, "é funcionária fantasma.");
+    ENTÃO A SENHORA É O QUÊ? (presencas < 3)
+        TEMOS GRAVADO!("Veredito:", nome, "é meio funcionária, meio fantasma.");
+    E TÁ CORRENDO POR QUÊ?
+        TEMOS GRAVADO!("Veredito:", nome, "trabalha mesmo. E tá correndo por quê?");
+    FUGIU
+
+    SE A SENHORA NÃO É FUNCIONÁRIA (!pega_no_flagra)
+        TEMOS GRAVADO!("Ela fugiu.");
+    E TÁ CORRENDO POR QUÊ?
+        TEMOS GRAVADO!("Pega no flagra:", pega_no_flagra);
+    FUGIU
+FUGIU

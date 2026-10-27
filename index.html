@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FogeScript</title>
+<meta name="description" content="FogeScript: a linguagem de programação da senhora que trabalha na Assembleia. Roda direto no navegador.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f1ea; --paper:#fffdf8; --ink:#1b1b1b; --muted:#5d5a52; --line:#d9d3c5;
+  --red:#d7261e; --yellow:#ffd23f; --code-bg:#15161a; --code-ink:#e8e6e1;
+  --kw:#ffd23f; --str:#7ee08a; --num:#79b8ff; --com:#7d7f87; --op:#ff8a7a; --err:#ff5c5c;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121214; --paper:#1b1c20; --ink:#efece6; --muted:#a6a39b; --line:#33343a;
+  }
+}
+:root[data-theme="dark"]{ --bg:#121214; --paper:#1b1c20; --ink:#efece6; --muted:#a6a39b; --line:#33343a; }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Inter,system-ui,sans-serif}
+a{color:var(--red)}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+header.hero{background:var(--red);color:#fff;border-bottom:6px solid var(--ink)}
+.hero .wrap{padding-top:40px;padding-bottom:36px;display:grid;gap:12px}
+.rec{display:inline-flex;align-items:center;gap:8px;font:700 13px 'JetBrains Mono',monospace;letter-spacing:.08em;background:#000;color:#fff;padding:4px 10px;width:max-content}
+.rec i{width:10px;height:10px;border-radius:50%;background:#ff3b30;animation:blink 1.2s infinite}
+@keyframes blink{50%{opacity:.2}}
+h1{font:clamp(44px,9vw,96px)/.9 'Archivo Black',sans-serif;margin:6px 0 0;letter-spacing:-.02em}
+h1 span{background:var(--yellow);color:var(--ink);padding:0 .12em}
+.tag{font-size:clamp(17px,2.4vw,21px);max-width:720px;margin:0}
+.hero small{opacity:.85}
+h2{font:32px/1.1 'Archivo Black',sans-serif;margin:56px 0 8px}
+h3{font:700 15px 'JetBrains Mono',monospace;margin:0 0 6px;text-transform:uppercase;letter-spacing:.04em}
+.lead{color:var(--muted);margin:0 0 20px;max-width:720px}
+
+/* playground */
+.play{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;margin-top:20px}
+@media (max-width:820px){.play{grid-template-columns:1fr}}
+.panel{background:var(--code-bg);color:var(--code-ink);border:2px solid var(--ink);box-shadow:6px 6px 0 var(--ink);display:flex;flex-direction:column;min-width:0}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;border-bottom:1px solid #2b2d33;font:700 12px 'JetBrains Mono',monospace;color:#a9abb3;text-transform:uppercase;letter-spacing:.06em;flex-wrap:wrap}
+select{font:13px 'JetBrains Mono',monospace;background:#25272d;color:#fff;border:1px solid #3a3d45;padding:4px 6px;max-width:100%}
+.editor{position:relative;flex:1;min-height:420px;font:14px/1.6 'JetBrains Mono',monospace;overflow:hidden}
+.editor pre,.editor textarea{position:absolute;inset:0;margin:0;padding:14px 14px 14px 52px;font:inherit;white-space:pre;overflow:auto;tab-size:4;border:0}
+.editor pre{pointer-events:none;color:var(--code-ink)}
+.editor textarea{background:transparent;color:transparent;caret-color:#fff;resize:none;outline:none}
+.editor textarea::selection{background:rgba(255,210,63,.3)}
+.gutter{position:absolute;top:0;left:0;bottom:0;width:40px;padding:14px 6px 14px 0;text-align:right;color:#55575f;background:#111215;font:inherit;white-space:pre;overflow:hidden;pointer-events:none}
+.gutter b{color:#fff;background:var(--red);font-weight:400;display:inline-block;width:100%}
+.t-kw{color:var(--kw);font-weight:700}.t-str{color:var(--str)}.t-num{color:var(--num)}.t-com{color:var(--com);font-style:italic}.t-op{color:var(--op)}.t-err{color:#fff;background:var(--err)}
+.side{display:flex;flex-direction:column;gap:16px;min-width:0}
+.side textarea{width:100%;min-height:76px;background:transparent;color:var(--code-ink);border:0;outline:none;resize:vertical;padding:12px;font:14px/1.5 'JetBrains Mono',monospace}
+#saida{flex:1;margin:0;padding:12px;min-height:230px;font:14px/1.5 'JetBrains Mono',monospace;white-space:pre-wrap;word-break:break-word;overflow:auto;max-height:420px}
+#saida .erro{color:var(--err)}
+#saida .ok{color:#7d7f87}
+.run{font:22px 'Archivo Black',sans-serif;background:var(--yellow);color:var(--ink);border:2px solid var(--ink);box-shadow:6px 6px 0 var(--ink);padding:14px 18px;cursor:pointer;text-transform:uppercase;transition:transform .08s,box-shadow .08s}
+.run:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 var(--ink)}
+.run:active{transform:translate(4px,4px);box-shadow:2px 2px 0 var(--ink)}
+.run kbd{display:block;font:12px 'JetBrains Mono',monospace;opacity:.7;text-transform:none}
+.hint{color:var(--muted);font-size:13px;margin:0}
+
+/* dicionario */
+.dict{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card{background:var(--paper);border:2px solid var(--ink);padding:14px 16px}
+.card .c{color:var(--muted);font:12px 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.06em}
+.card .k{font:700 16px/1.3 'JetBrains Mono',monospace;color:var(--red);margin:4px 0 6px}
+.card p{margin:0;font-size:14px;color:var(--muted)}
+.lessons{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+@media (max-width:400px){.lessons{grid-template-columns:1fr}}
+.lesson{background:var(--paper);border:2px solid var(--ink);padding:16px;min-width:0}
+.lesson p{margin:0 0 10px;font-size:14px;color:var(--muted)}
+.lesson pre{background:var(--code-bg);color:var(--code-ink);margin:0;padding:12px;font:13px/1.55 'JetBrains Mono',monospace;overflow:auto}
+.lesson button{margin-top:10px;font:700 12px 'JetBrains Mono',monospace;background:none;border:2px solid var(--ink);color:var(--ink);padding:4px 10px;cursor:pointer}
+.lesson button:hover{background:var(--yellow);color:#1b1b1b}
+table{border-collapse:collapse;width:100%;background:var(--paper);border:2px solid var(--ink);font-size:14px}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line)}
+th{font:700 12px 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.05em}
+td code{font:13px 'JetBrains Mono',monospace}
+.tablewrap{overflow-x:auto}
+footer{margin-top:64px;border-top:6px solid var(--ink);padding:24px 0 40px;color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <span class="rec"><i></i> REC · TEMOS GRAVADO</span>
+    <h1>Foge<span>Script</span></h1>
+    <p class="tag">A linguagem de programação da senhora que trabalha na Assembleia. Ela jura que nunca fez isso, mas o código está gravado e roda direto no seu navegador, sem servidor nem instalação.</p>
+    <small>Inspirada na <a href="https://birl-language.github.io/" style="color:#fff">BIRL</a>, a linguagem do Bambam.</small>
+  </div>
+</header>
+
+<main class="wrap">
+  <h2>Tribunal ao vivo</h2>
+  <p class="lead">Escreva o código, coloque as respostas na Entrada (uma por linha) e aperte o botão. Tudo roda no seu navegador.</p>
+
+  <div class="play">
+    <div class="panel">
+      <div class="panel-head">
+        <span>codigo.foge</span>
+        <select id="exemplos" aria-label="Escolher exemplo"></select>
+      </div>
+      <div class="editor">
+        <div class="gutter" id="gutter"></div>
+        <pre id="realce" aria-hidden="true"></pre>
+        <textarea id="codigo" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Código FogeScript"></textarea>
+      </div>
+    </div>
+    <div class="side">
+      <div class="panel">
+        <div class="panel-head"><span>Entrada</span><span>um valor por linha</span></div>
+        <textarea id="entrada" spellcheck="false" aria-label="Entrada"></textarea>
+      </div>
+      <button class="run" id="rodar">Pega a senhora!<kbd>Ctrl + Enter</kbd></button>
+      <div class="panel" style="flex:1">
+        <div class="panel-head"><span>Saída</span><span id="tempo"></span></div>
+        <pre id="saida"><span class="ok">A saída do programa aparece aqui.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <h2>Dicionário oficial</h2>
+  <p class="lead">Palavras-chave aceitam maiúsculas ou minúsculas, com ou sem acento: <code>nao ta gravado</code> funciona igual a <code>NÃO TÁ GRAVADO</code>. Todo bloco termina com <b>FUGIU</b>.</p>
+  <div class="dict" id="dict"></div>
+
+  <h2>Aprendendo a fugir</h2>
+  <p class="lead">Cada exemplo abre no editor lá em cima.</p>
+  <div class="lessons" id="lessons"></div>
+
+  <h2>Operadores e funções prontas</h2>
+  <div class="tablewrap">
+  <table>
+    <tr><th>O quê</th><th>Como</th></tr>
+    <tr><td>Contas</td><td><code>+ - * / %</code> (o <code>+</code> também junta textos e listas)</td></tr>
+    <tr><td>Comparação</td><td><code>== != &lt; &gt; &lt;= &gt;=</code></td></tr>
+    <tr><td>Lógica</td><td><code>&amp;&amp;</code> (e), <code>||</code> (ou), <code>!</code> (não)</td></tr>
+    <tr><td>Atalhos</td><td><code>X++</code>, <code>X--</code>, <code>X += 2</code>, <code>X -= 2</code>, <code>X *= 2</code>…</td></tr>
+    <tr><td>Listas</td><td><code>[1, 2, 3]</code>, <code>L[0]</code>, <code>L[TAMANHO(L)] = X</code> adiciona no final</td></tr>
+    <tr><td>Comentários</td><td><code>// uma linha</code> ou <code>/* várias */</code></td></tr>
+    <tr><td><code>TAMANHO(x)</code></td><td>Quantidade de letras de um texto ou itens de uma lista</td></tr>
+    <tr><td><code>NUMERO(x)</code> / <code>INTEIRO(x)</code></td><td>Converte para número (com ou sem casas decimais)</td></tr>
+    <tr><td><code>TEXTO(x)</code></td><td>Converte qualquer valor para texto</td></tr>
+    <tr><td><code>ALEATORIO(a, b)</code></td><td>Número inteiro sorteado entre a e b</td></tr>
+  </table>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">FogeScript v<span id="ver"></span> · trabalho de faculdade · código em <a href="https://github.com/improvez/FogeScript">github.com/improvez/FogeScript</a></div>
+</footer>
+
+<script src="fogescript.js"></script>
+<script>
+const EXEMPLOS = {"flagrante": {"titulo": "O flagrante completo (usa tudo)", "codigo": "/*\n    O FLAGRANTE NA ASSEMBLEIA\n    Um programa que usa a linguagem inteira e conta a história do vídeo.\n    Entrada: o nome da senhora e o salário dela, uma resposta por linha.\n*/\n\nA SENHORA FEZ dias_da_semana = [\"segunda\", \"terça\", \"quarta\", \"quinta\", \"sexta\", \"sábado\", \"domingo\"];\n\n// \"Não, eu nunca fiz isso\"... bater o ponto. Só na quarta-feira.\nNÃO, EU NUNCA FIZ ISSO bater_ponto(dia)\n    SE A SENHORA NÃO É FUNCIONÁRIA (dia != \"quarta\")\n        CHEGA DE CORRER NÃO TÁ GRAVADO;\n    FUGIU\n    CHEGA DE CORRER TÁ GRAVADO;\nFUGIU\n\nNÃO, EU NUNCA FIZ ISSO ganhar_por_dia(salario)\n    SE A SENHORA NÃO É FUNCIONÁRIA (salario <= 0)\n        ME DEIXA EM PAZ! \"esse salário não existe\";\n    FUGIU\n    CHEGA DE CORRER INTEIRO(salario / 22);\nFUGIU\n\nA SENHORA TRABALHA NA ASSEMBLEIA?\n    A SENHORA FEZ nome, salario;\n    A SENHORA FEZ presencas = 0;\n    A SENHORA FEZ faltas = [];\n    A SENHORA FEZ pega_no_flagra = NÃO TÁ GRAVADO;\n\n    TEMOS GRAVADO!(\"Repórter: Bom dia! Como a senhora se chama?\");\n    QUER CONVERSAR COMIGO?(nome);\n    TEMOS GRAVADO!(\"Repórter: E quanto a senhora ganha por mês?\");\n    QUER CONVERSAR COMIGO?(salario);\n\n    // A folha de ponto: a repórter chama a senhora dia após dia.\n    SENHORA? SENHORA?! (A SENHORA FEZ i = 0; i < TAMANHO(dias_da_semana); i++)\n        A SENHORA FEZ dia = dias_da_semana[i];\n        SE A SENHORA NÃO É FUNCIONÁRIA (dia == \"sábado\" || dia == \"domingo\")\n            DEIXA ELA CORRER;   // fim de semana ninguém bate ponto\n        FUGIU\n        SE A SENHORA NÃO É FUNCIONÁRIA (CHAMA A SENHORA bater_ponto(dia))\n            presencas++;\n        E TÁ CORRENDO POR QUÊ?\n            faltas[TAMANHO(faltas)] = dia;\n        FUGIU\n    FUGIU\n\n    TEMOS GRAVADO!(\"Presenças da semana:\", presencas, \"| Faltas:\", faltas);\n\n    // Quanto a Assembleia paga por cada dia que ela não foi?\n    DEIXA EU TE PERGUNTAR\n        A SENHORA FEZ por_dia = CHAMA A SENHORA ganhar_por_dia(NUMERO(salario));\n        TEMOS GRAVADO!(\"Cada falta custou R$ \" + TEXTO(por_dia * TAMANHO(faltas)) + \" pra Assembleia.\");\n    A SENHORA TÁ NERVOSA? (motivo)\n        TEMOS GRAVADO!(\"Repórter: A senhora tá nervosa? Disse que\", motivo);\n    FUGIU\n\n    // A perseguição: ela corre, a repórter vai atrás.\n    A SENHORA FEZ distancia = 12;\n    A SENHORA FEZ folego = 5;\n    ENQUANTO TIVER CORRENDO (folego > 0)\n        TEMOS GRAVADO!(\"SENHORA?! (\" + TEXTO(distancia) + \" metros)\");\n        distancia -= 4;\n        folego--;\n        SE A SENHORA NÃO É FUNCIONÁRIA (distancia <= 0)\n            pega_no_flagra = TÁ GRAVADO;\n            VOLTA AQUI!;\n        FUGIU\n    FUGIU\n\n    // O veredito.\n    SE A SENHORA NÃO É FUNCIONÁRIA (presencas == 0)\n        TEMOS GRAVADO!(\"Veredito:\", nome, \"é funcionária fantasma.\");\n    ENTÃO A SENHORA É O QUÊ? (presencas < 3)\n        TEMOS GRAVADO!(\"Veredito:\", nome, \"é meio funcionária, meio fantasma.\");\n    E TÁ CORRENDO POR QUÊ?\n        TEMOS GRAVADO!(\"Veredito:\", nome, \"trabalha mesmo. E tá correndo por quê?\");\n    FUGIU\n\n    SE A SENHORA NÃO É FUNCIONÁRIA (!pega_no_flagra)\n        TEMOS GRAVADO!(\"Ela fugiu.\");\n    E TÁ CORRENDO POR QUÊ?\n        TEMOS GRAVADO!(\"Pega no flagra:\", pega_no_flagra);\n    FUGIU\nFUGIU\n", "entrada": "Dona Cida\n8800\n"}, "somador": {"titulo": "Somador (o clássico da BIRL)", "codigo": "// O somador da BIRL, agora na Assembleia\nNÃO, EU NUNCA FIZ ISSO SOMAR(A, B)\n    CHEGA DE CORRER A + B;\nFUGIU\n\nA SENHORA TRABALHA NA ASSEMBLEIA?\n    A SENHORA FEZ A, B, RES;\n    TEMOS GRAVADO!(\"Me passa dois números aí, senhora:\");\n    QUER CONVERSAR COMIGO?(A, B);\n    RES = CHAMA A SENHORA SOMAR(A, B);\n    TEMOS GRAVADO!(\"O resultado é\", RES);\n\n    SE A SENHORA NÃO É FUNCIONÁRIA (RES == 37)\n        TEMOS GRAVADO!(\"37! Tá gravado!\");\n    E TÁ CORRENDO POR QUÊ?\n        TEMOS GRAVADO!(\"Volta aqui, senhora!\");\n    FUGIU\nFUGIU\n", "entrada": "30\n7\n"}, "ola": {"titulo": "Olá, Assembleia", "codigo": "// O primeiro flagrante\nA SENHORA TRABALHA NA ASSEMBLEIA?\n    TEMOS GRAVADO!(\"Olá, Assembleia!\");\nFUGIU\n", "entrada": ""}, "fizzbuzz": {"titulo": "FizzBuzz da senhora", "codigo": "// FizzBuzz da Assembleia: múltiplos de 3 e 5 viram meme\nA SENHORA TRABALHA NA ASSEMBLEIA?\n    A SENHORA FEZ N = 1;\n    ENQUANTO TIVER CORRENDO (N <= 15)\n        SE A SENHORA NÃO É FUNCIONÁRIA (N % 15 == 0)\n            TEMOS GRAVADO!(\"TEMOS GRAVADO!\");\n        ENTÃO A SENHORA É O QUÊ? (N % 3 == 0)\n            TEMOS GRAVADO!(\"SENHORA?\");\n        ENTÃO A SENHORA É O QUÊ? (N % 5 == 0)\n            TEMOS GRAVADO!(\"VOLTA AQUI!\");\n        E TÁ CORRENDO POR QUÊ?\n            TEMOS GRAVADO!(N);\n        FUGIU\n        N++;\n    FUGIU\nFUGIU\n", "entrada": ""}, "fatorial": {"titulo": "Fatorial recursivo", "codigo": "// Recursão: a senhora chama a si mesma\nNÃO, EU NUNCA FIZ ISSO FATORIAL(N)\n    SE A SENHORA NÃO É FUNCIONÁRIA (N <= 1)\n        CHEGA DE CORRER 1;\n    FUGIU\n    CHEGA DE CORRER N * CHAMA A SENHORA FATORIAL(N - 1);\nFUGIU\n\nA SENHORA TRABALHA NA ASSEMBLEIA?\n    SENHORA? SENHORA?! (A SENHORA FEZ I = 1; I <= 10; I++)\n        TEMOS GRAVADO!(I + \"! =\", CHAMA A SENHORA FATORIAL(I));\n    FUGIU\nFUGIU\n", "entrada": ""}, "listas": {"titulo": "Listas, break e continue", "codigo": "// Listas, VOLTA AQUI! (break) e DEIXA ELA CORRER (continue)\nA SENHORA TRABALHA NA ASSEMBLEIA?\n    A SENHORA FEZ FUNCIONARIOS = [\"Ana\", \"Beto\", \"Senhora\", \"Carla\"];\n    A SENHORA FEZ PRESENTES = [];\n\n    SENHORA? SENHORA?! (A SENHORA FEZ I = 0; I < TAMANHO(FUNCIONARIOS); I++)\n        SE A SENHORA NÃO É FUNCIONÁRIA (FUNCIONARIOS[I] == \"Beto\")\n            DEIXA ELA CORRER;   // Beto está de férias\n        FUGIU\n        SE A SENHORA NÃO É FUNCIONÁRIA (FUNCIONARIOS[I] == \"Senhora\")\n            TEMOS GRAVADO!(\"Achamos a senhora na posição\", I);\n            VOLTA AQUI!;        // para o laço\n        FUGIU\n        PRESENTES[TAMANHO(PRESENTES)] = FUNCIONARIOS[I];\n    FUGIU\n\n    TEMOS GRAVADO!(\"Bateram o ponto:\", PRESENTES);\nFUGIU\n", "entrada": ""}, "erros": {"titulo": "Tratando erros", "codigo": "// Tratando erros: a senhora fica nervosa, mas o programa continua\nNÃO, EU NUNCA FIZ ISSO DIVIDIR(A, B)\n    SE A SENHORA NÃO É FUNCIONÁRIA (B == 0)\n        ME DEIXA EM PAZ! \"não divido por zero!\";\n    FUGIU\n    CHEGA DE CORRER A / B;\nFUGIU\n\nA SENHORA TRABALHA NA ASSEMBLEIA?\n    DEIXA EU TE PERGUNTAR\n        TEMOS GRAVADO!(\"10 / 4 =\", CHAMA A SENHORA DIVIDIR(10, 4));\n        TEMOS GRAVADO!(\"10 / 0 =\", CHAMA A SENHORA DIVIDIR(10, 0));\n        TEMOS GRAVADO!(\"Essa linha nunca aparece\");\n    A SENHORA TÁ NERVOSA? (ERRO)\n        TEMOS GRAVADO!(\"A senhora ficou nervosa:\", ERRO);\n    FUGIU\n    TEMOS GRAVADO!(\"Fim da sessão.\", TÁ GRAVADO, NÃO TÁ GRAVADO);\nFUGIU\n", "entrada": ""}};
+
+const DICT = [
+  ['Início (main)', 'INICIO', 'Ponto de entrada do programa. Termina com FUGIU.'],
+  ['Fim de bloco', 'FIM', 'Fecha qualquer bloco: início, if, laços, funções e try.'],
+  ['Saída (print)', 'PRINT', 'Mostra valores na tela. Vários valores separados por vírgula.'],
+  ['Entrada (input)', 'INPUT', 'Lê o próximo valor da caixa de Entrada para uma variável.'],
+  ['Variável (var)', 'VAR', 'Declara uma ou mais variáveis, com ou sem valor.'],
+  ['Se (if)', 'IF', 'Executa o bloco se a condição for verdadeira.'],
+  ['Senão se (else if)', 'ELSEIF', 'Testa outra condição se as anteriores falharam.'],
+  ['Senão (else)', 'ELSE', 'Executa se nenhuma condição deu certo.'],
+  ['Enquanto (while)', 'WHILE', 'Repete enquanto a condição for verdadeira.'],
+  ['Para (for)', 'FOR', 'Laço com início, condição e passo, como em C.'],
+  ['Parar (break)', 'BREAK', 'Sai do laço na hora.'],
+  ['Pular (continue)', 'CONTINUE', 'Pula para a próxima volta do laço.'],
+  ['Função (function)', 'FUNC', 'Declara uma função (o álibi). Fica fora do início.'],
+  ['Chamar (call)', 'CALL', 'Chama uma função. Opcional: SOMAR(A, B) também funciona.'],
+  ['Retorno (return)', 'RETURN', 'Devolve um valor e sai da função.'],
+  ['Verdadeiro (true)', 'TRUE', 'Valor booleano verdadeiro.'],
+  ['Falso (false)', 'FALSE', 'Valor booleano falso.'],
+  ['Tentar (try)', 'TRY', 'Tenta executar um bloco arriscado.'],
+  ['Capturar (catch)', 'CATCH', 'Trata o erro do try. (ERRO) guarda a mensagem.'],
+  ['Lançar erro (throw)', 'THROW', 'Lança um erro de propósito.'],
+];
+
+const LICOES = [
+  ['Início e fim', 'Todo programa precisa da Assembleia. Todo bloco fecha com FUGIU.',
+`A SENHORA TRABALHA NA ASSEMBLEIA?
+    // código aqui
+FUGIU`],
+  ['Variáveis e tipos', 'Uma palavra só para todos os tipos: número, texto, booleano e lista.',
+`A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ IDADE = 37;
+    A SENHORA FEZ NOME = "Senhora";
+    A SENHORA FEZ FUGIU_MESMO = TÁ GRAVADO;
+    A SENHORA FEZ PROVAS = [1, 2, 3];
+    TEMOS GRAVADO!(NOME, IDADE, FUGIU_MESMO, PROVAS);
+FUGIU`],
+  ['Ler da tela', 'Cada QUER CONVERSAR COMIGO? pega a próxima linha da Entrada. Números viram números.',
+`A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ NOME;
+    QUER CONVERSAR COMIGO?(NOME);
+    TEMOS GRAVADO!("Bom dia, " + NOME + "!");
+FUGIU`],
+  ['If / else if / else', 'Os ramos ficam dentro do mesmo bloco, e um único FUGIU fecha tudo.',
+`A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ X = 2;
+    SE A SENHORA NÃO É FUNCIONÁRIA (X > 2)
+        TEMOS GRAVADO!("maior");
+    ENTÃO A SENHORA É O QUÊ? (X < 2)
+        TEMOS GRAVADO!("menor");
+    E TÁ CORRENDO POR QUÊ?
+        TEMOS GRAVADO!("igual");
+    FUGIU
+FUGIU`],
+  ['While', 'Repete enquanto a condição for verdadeira.',
+`A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ X = 5;
+    ENQUANTO TIVER CORRENDO (X > 0)
+        TEMOS GRAVADO!("Senhora?", X);
+        X--;
+    FUGIU
+FUGIU`],
+  ['For, break e continue', 'O for tem três partes separadas por ponto e vírgula.',
+`A SENHORA TRABALHA NA ASSEMBLEIA?
+    SENHORA? SENHORA?! (A SENHORA FEZ I = 0; I < 10; I++)
+        SE A SENHORA NÃO É FUNCIONÁRIA (I == 2)
+            DEIXA ELA CORRER;
+        FUGIU
+        SE A SENHORA NÃO É FUNCIONÁRIA (I == 5)
+            VOLTA AQUI!;
+        FUGIU
+        TEMOS GRAVADO!(I);
+    FUGIU
+FUGIU`],
+  ['Funções', 'Declaradas fora da Assembleia. CHAMA A SENHORA é o jeito meme de chamar.',
+`NÃO, EU NUNCA FIZ ISSO DOBRO(N)
+    CHEGA DE CORRER N * 2;
+FUGIU
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    TEMOS GRAVADO!(CHAMA A SENHORA DOBRO(21));
+FUGIU`],
+  ['Try / catch / throw', 'Erros de execução (divisão por zero, variável que não existe…) também são capturados.',
+`A SENHORA TRABALHA NA ASSEMBLEIA?
+    DEIXA EU TE PERGUNTAR
+        ME DEIXA EM PAZ! "não fui eu!";
+    A SENHORA TÁ NERVOSA? (ERRO)
+        TEMOS GRAVADO!("Pegamos:", ERRO);
+    FUGIU
+FUGIU`],
+];
+
+const $ = (id) => document.getElementById(id);
+const codigo = $('codigo'), realce = $('realce'), gutter = $('gutter'), entrada = $('entrada'), saida = $('saida');
+const PHRASE = Object.fromEntries(FogeScript.KEYWORDS);
+let linhaErro = null;
+
+const esc = (s) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+
+function pintar() {
+  const src = codigo.value;
+  let html = '', pos = 0;
+  try {
+    for (const t of FogeScript.tokenize(src, true)) {
+      if (t.type === 'eof') break;
+      html += esc(src.slice(pos, t.start));
+      const cls = { kw: 't-kw', str: 't-str', num: 't-num', comment: 't-com', op: 't-op', error: 't-err' }[t.type];
+      const txt = esc(src.slice(t.start, t.end));
+      html += cls ? `<span class="${cls}">${txt}</span>` : txt;
+      pos = t.end;
+    }
+  } catch (e) { /* realce é opcional */ }
+  html += esc(src.slice(pos));
+  realce.innerHTML = html + '\n';
+  const n = src.split('\n').length;
+  let g = '';
+  for (let i = 1; i <= n; i++) g += (i === linhaErro ? `<b>${i}</b>` : i) + '\n';
+  gutter.innerHTML = g;
+  sincronizar();
+}
+function sincronizar() {
+  realce.scrollTop = codigo.scrollTop;
+  realce.scrollLeft = codigo.scrollLeft;
+  gutter.scrollTop = codigo.scrollTop;
+}
+
+function rodar() {
+  const t0 = performance.now();
+  const r = FogeScript.run(codigo.value, { input: entrada.value });
+  const ms = Math.round(performance.now() - t0);
+  saida.innerHTML = esc(r.output);
+  if (r.ok) {
+    if (!r.output) saida.innerHTML = '<span class="ok">(o programa não mostrou nada)</span>';
+    linhaErro = null;
+  } else {
+    const onde = r.linha ? `Linha ${r.linha}: ` : '';
+    saida.innerHTML += `<span class="erro">${r.output && !r.output.endsWith('\n') ? '\n' : ''}✖ ${esc(onde + r.error)}</span>`;
+    linhaErro = r.linha || null;
+  }
+  $('tempo').textContent = `${ms} ms`;
+  pintar();
+}
+
+function carregar(chave) {
+  const ex = EXEMPLOS[chave];
+  codigo.value = ex.codigo;
+  entrada.value = ex.entrada;
+  linhaErro = null;
+  pintar();
+  saida.innerHTML = '<span class="ok">Aperte o botão para rodar.</span>';
+}
+
+codigo.addEventListener('input', () => { linhaErro = null; pintar(); });
+codigo.addEventListener('scroll', sincronizar);
+codigo.addEventListener('keydown', (e) => {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const s = codigo.selectionStart;
+    codigo.setRangeText('    ', s, codigo.selectionEnd, 'end');
+    pintar();
+  }
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); rodar(); }
+});
+$('rodar').addEventListener('click', rodar);
+
+const sel = $('exemplos');
+for (const [k, ex] of Object.entries(EXEMPLOS)) sel.add(new Option(ex.titulo, k));
+sel.addEventListener('change', () => carregar(sel.value));
+
+$('dict').innerHTML = DICT.map(([c, k, d]) =>
+  `<div class="card"><div class="c">${c}</div><div class="k">${esc(PHRASE[k])}</div><p>${d}</p></div>`).join('');
+
+$('lessons').innerHTML = LICOES.map(([t, d, c], i) =>
+  `<div class="lesson"><h3>${t}</h3><p>${d}</p><pre>${esc(c)}</pre><button data-i="${i}">Abrir no editor ↑</button></div>`).join('');
+$('lessons').addEventListener('click', (e) => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  const l = LICOES[+b.dataset.i];
+  codigo.value = l[2];
+  entrada.value = l[0] === 'Ler da tela' ? 'Fulana\n' : '';
+  linhaErro = null;
+  pintar();
+  document.querySelector('.play').scrollIntoView({ behavior: 'smooth' });
+  rodar();
+});
+
+$('ver').textContent = FogeScript.version;
+carregar('flagrante');
+</script>
+</body>
+</html>
