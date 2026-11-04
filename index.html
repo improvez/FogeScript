@@ -60,6 +60,13 @@ select{font:13px 'JetBrains Mono',monospace;background:#25272d;color:#fff;border
 .run:active{transform:translate(4px,4px);box-shadow:2px 2px 0 var(--ink)}
 .run kbd{display:block;font:12px 'JetBrains Mono',monospace;opacity:.7;text-transform:none}
 .hint{color:var(--muted);font-size:13px;margin:0}
+[hidden]{display:none!important}
+.compilar{font:16px 'Archivo Black',sans-serif;background:var(--paper);color:var(--ink);border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:10px 14px;cursor:pointer;text-transform:uppercase;transition:transform .08s,box-shadow .08s}
+.compilar:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink)}
+.compilar:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+.compilar kbd{display:block;font:12px 'JetBrains Mono',monospace;opacity:.7;text-transform:none}
+.gerado{margin-top:16px}
+#js{margin:0;padding:12px 14px;font:13px/1.55 'JetBrains Mono',monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;max-height:520px}
 
 /* dicionario */
 .dict{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
@@ -94,7 +101,7 @@ footer{margin-top:64px;border-top:6px solid var(--ink);padding:24px 0 40px;color
 
 <main class="wrap">
   <h2>Tribunal ao vivo</h2>
-  <p class="lead">Escreva o código, coloque as respostas na Entrada (uma por linha) e aperte o botão. Tudo roda no seu navegador.</p>
+  <p class="lead">Escreva o código, coloque as respostas na Entrada (uma por linha) e aperte o botão. Tudo roda no seu navegador. O botão Compilar traduz o programa para JavaScript, mostra o código gerado e roda esse código.</p>
 
   <div class="play">
     <div class="panel">
@@ -114,11 +121,17 @@ footer{margin-top:64px;border-top:6px solid var(--ink);padding:24px 0 40px;color
         <textarea id="entrada" spellcheck="false" aria-label="Entrada"></textarea>
       </div>
       <button class="run" id="rodar">Pega a senhora!<kbd>Ctrl + Enter</kbd></button>
+      <button class="compilar" id="compilar">Compilar para JavaScript<kbd>traduz o programa e roda o código gerado</kbd></button>
       <div class="panel" style="flex:1">
         <div class="panel-head"><span>Saída</span><span id="tempo"></span></div>
         <pre id="saida"><span class="ok">A saída do programa aparece aqui.</span></pre>
       </div>
     </div>
+  </div>
+
+  <div class="panel gerado" id="painel-js" hidden>
+    <div class="panel-head"><span>codigo.js · gerado pelo compilador</span><span id="estado-js"></span></div>
+    <pre id="js"></pre>
   </div>
 
   <h2>Dicionário oficial</h2>
@@ -339,6 +352,32 @@ $('lessons').addEventListener('click', (e) => {
   document.querySelector('.play').scrollIntoView({ behavior: 'smooth' });
   rodar();
 });
+
+// Compilador: traduz para JavaScript, mostra o código gerado e roda esse código.
+const painelJs = $('painel-js'), codigoJs = $('js'), estadoJs = $('estado-js');
+function compilar() {
+  const t0 = performance.now();
+  const r = FogeScript.runCompiled(codigo.value, { input: entrada.value });
+  const ms = Math.round(performance.now() - t0);
+  saida.innerHTML = esc(r.output);
+  if (r.ok) {
+    if (!r.output) saida.innerHTML = '<span class="ok">(o programa não mostrou nada)</span>';
+    linhaErro = null;
+  } else {
+    const onde = r.linha ? `Linha ${r.linha}: ` : '';
+    saida.innerHTML += `<span class="erro">${r.output && !r.output.endsWith('\n') ? '\n' : ''}✖ ${esc(onde + r.error)}</span>`;
+    linhaErro = r.linha || null;
+  }
+  $('tempo').textContent = `${ms} ms · compilado`;
+  codigoJs.textContent = r.codigo || '// O programa tem um erro de sintaxe, então não deu para gerar o JavaScript.';
+  estadoJs.textContent = '';
+  painelJs.hidden = false;
+  pintar();
+}
+$('compilar').addEventListener('click', compilar);
+codigo.addEventListener('input', () => { if (!painelJs.hidden) estadoJs.textContent = 'desatualizado: compile de novo'; });
+sel.addEventListener('change', () => { painelJs.hidden = true; });
+$('lessons').addEventListener('click', (e) => { if (e.target.closest('button')) painelJs.hidden = true; });
 
 $('ver').textContent = FogeScript.version;
 carregar('flagrante');

@@ -885,5 +885,470 @@
     }
   }
 
-  return { run, parse, tokenize, KEYWORDS, FogeErro, version: '1.0.0' };
+  // ---------------------------------------------------------------------------
+  // Compilação para JavaScript
+  // ---------------------------------------------------------------------------
+  // O compilador reaproveita o léxico e o sintático: recebe a mesma AST que o
+  // interpretador usa, mas em vez de executar cada nó, escreve o código
+  // JavaScript equivalente. Tudo que precisa conferir tipo chama uma função de
+  // apoio "foge.*" (o runtime), que usa as mesmas regras e mensagens de erro do
+  // interpretador. O código do interpretador acima não foi alterado.
+
+  const VERSAO = '1.1.0';
+
+  // Nomes que não podem virar variável em JavaScript, mais os nomes do runtime.
+  const NOMES_RESERVADOS = new Set((
+    'break case catch class const continue debugger default delete do else enum export extends false finally ' +
+    'for function if implements import in instanceof interface let new null package private protected public ' +
+    'return static super switch this throw true try typeof var void while with yield await arguments eval ' +
+    'undefined NaN Infinity foge assembleia'
+  ).split(' '));
+  const JS_INICIO = /[\p{ID_Start}_]/u;
+  const JS_PARTE = /\p{ID_Continue}/u;
+  const OPS_BOOLEANOS = ['==', '!=', '<', '>', '<=', '>='];
+
+  /**
+   * Traduz um programa FogeScript para JavaScript.
+   * Retorna o código JavaScript como texto. Erros de sintaxe viram FogeErro.
+   */
+  function compile(src) {
+    const ast = parse(src);
+    const prontas = Object.keys(new Interp(null).arity);
+    const str = JSON.stringify;
+    const pad = (n) => '  '.repeat(n);
+    let repetidas = 0;
+
+    // Escopos durante a compilação: o mesmo desenho da classe Env, mas guardando
+    // o nome JavaScript de cada variável em vez do valor.
+    const escopo = (pai) => ({ vars: new Map(), js: new Set(), pai });
+    function achar(sc, nome) {
+      for (let s = sc; s; s = s.pai) if (s.vars.has(nome)) return s.vars.get(nome);
+      return null;
+    }
+
+    // Cada declaração ganha um nome JavaScript. Quase sempre é o próprio nome;
+    // só muda (X vira X_2) quando um bloco de fora já usa esse nome, quando é
+    // uma palavra reservada do JavaScript ou quando tem um caractere inválido.
+    function nomeJs(nome, sc) {
+      let base = '';
+      for (const c of nome) base += (base ? JS_PARTE : JS_INICIO).test(c) ? c : '_' + c.codePointAt(0).toString(16);
+      const ocupado = (js) => {
+        if (NOMES_RESERVADOS.has(js)) return true;
+        for (let s = sc; s; s = s.pai) if (s.js.has(js)) return true;
+        return false;
+      };
+      let js = base;
+      for (let k = 2; ocupado(js); k++) js = base + '_' + k;
+      sc.js.add(js);
+      return js;
+    }
+    function declarar(sc, nome) {
+      if (sc.vars.has(nome)) return null;
+      const js = nomeJs(nome, sc);
+      sc.vars.set(nome, js);
+      return js;
+    }
+
+    // As mesmas checagens que o interpretador faz antes de rodar.
+    const globais = escopo(null);
+    const nomesFuncoes = new Map();
+    for (const f of ast.funcs) {
+      if (nomesFuncoes.has(f.name)) throw new FogeErro(`A função "${f.name}" foi declarada duas vezes`, f.line);
+      if (prontas.includes(f.name)) throw new FogeErro(`"${f.name}" já é uma função pronta da linguagem. Escolha outro nome`, f.line);
+      nomesFuncoes.set(f.name, nomeJs(f.name, globais));
+    }
+
+    // ---- expressões ----------------------------------------------------------
+    // "solto" diz que a expressão não precisa de parênteses em volta (ela é o
+    // comando inteiro ou a condição de um if/while).
+    function ex(e, sc, solto) {
+      const emVolta = (c) => (solto ? c : `(${c})`);
+      switch (e.type) {
+        case 'Lit':
+          return typeof e.value === 'string' ? str(e.value) : String(e.value);
+        case 'Ident':
+          return achar(sc, e.name) || `foge.naoFez(${str(e.name)}, ${e.line})`;
+        case 'List':
+          return '[' + e.items.map((x) => ex(x, sc)).join(', ') + ']';
+        case 'Unary':
+          if (e.op === '!') return '!' + ex(e.arg, sc);
+          if (e.arg.type === 'Lit' && typeof e.arg.value === 'number') return `(-${e.arg.value})`;
+          return `foge.negativo(${ex(e.arg, sc)}, ${e.line})`;
+        case 'Logical':
+          return emVolta(`${condicao(e.left, sc)} ${e.op} ${condicao(e.right, sc)}`);
+        case 'Binary':
+          if (e.op === '==' || e.op === '!=') return emVolta(`${ex(e.left, sc)} ${e.op}= ${ex(e.right, sc)}`);
+          return `foge.conta(${str(e.op)}, ${ex(e.left, sc)}, ${ex(e.right, sc)}, ${e.line})`;
+        case 'Assign':
+          return atribuir(e, sc, emVolta);
+        case 'Update':
+          return atualizar(e, sc, emVolta);
+        case 'Index':
+          return `foge.item(${ex(e.obj, sc)}, ${ex(e.index, sc)}, ${e.line})`;
+        case 'Call':
+          return `foge.chamar(${str(e.name)}, [${e.args.map((a) => ex(a, sc)).join(', ')}], ${e.line})`;
+        default:
+          throw new Error('Expressão desconhecida: ' + e.type);
+      }
+    }
+
+    // && e || sempre devolvem verdadeiro ou falso, como no interpretador.
+    function condicao(e, sc) {
+      const igualdade = e.type === 'Binary' && (e.op === '==' || e.op === '!=');
+      const booleano = igualdade || e.type === 'Logical' || (e.type === 'Unary' && e.op === '!') ||
+        (e.type === 'Lit' && typeof e.value === 'boolean') || (e.type === 'Binary' && OPS_BOOLEANOS.includes(e.op));
+      const c = ex(e, sc, igualdade);
+      return booleano ? c : '!!' + c;
+    }
+
+    function atribuir(e, sc, emVolta) {
+      const valor = ex(e.value, sc);
+      const t = e.target;
+      if (t.type === 'Ident') {
+        const js = achar(sc, t.name);
+        if (!js) return `foge.naoFez(${str(t.name)}, ${t.line}, ${valor})`;
+        if (e.op === '=') return emVolta(`${js} = ${valor}`);
+        return emVolta(`${js} = foge.acumular(${str(e.op)}, ${valor}, ${js}, ${e.line})`);
+      }
+      if (e.op === '=') {
+        return `foge.guardar(${valor}, foge.lista(${ex(t.obj, sc)}, ${t.line}), ${ex(t.index, sc)}, ${t.line})`;
+      }
+      return `foge.acumularItem(${str(e.op)}, ${valor}, () => ${ex(t.obj, sc)}, () => ${ex(t.index, sc)}, ${e.line}, ${t.line})`;
+    }
+
+    function atualizar(e, sc, emVolta) {
+      const t = e.target;
+      if (t.type === 'Ident') {
+        const js = achar(sc, t.name);
+        if (!js) return `foge.naoFez(${str(t.name)}, ${t.line})`;
+        if (e.prefix) return emVolta(`${js} = foge.numero(${js}, ${str(e.op)}, ${e.line}) ${e.op[0]} 1`);
+        return emVolta(`foge.numero(${js}, ${str(e.op)}, ${e.line}), ${js}${e.op}`);
+      }
+      return `foge.atualizarItem(${str(e.op)}, ${e.prefix}, () => ${ex(t.obj, sc)}, () => ${ex(t.index, sc)}, ${e.line}, ${t.line})`;
+    }
+
+    // Quando o valor da expressão é jogado fora (X++; sozinho ou o passo do for).
+    function semValor(e, sc) {
+      if (e.type === 'Update' && e.target.type === 'Ident') {
+        const js = achar(sc, e.target.name);
+        if (js) return `${js} = foge.numero(${js}, ${str(e.op)}, ${e.line}) ${e.op[0]} 1`;
+      }
+      return ex(e, sc, true);
+    }
+
+    // A expressão pode mudar algum valor? (atribuição, ++/-- ou chamada de função)
+    function temEfeito(e) {
+      if (!e || typeof e !== 'object') return false;
+      if (Array.isArray(e)) return e.some(temEfeito);
+      if (e.type === 'Assign' || e.type === 'Update' || e.type === 'Call') return true;
+      return Object.values(e).some((v) => v && typeof v === 'object' && temEfeito(v));
+    }
+
+    // ---- comandos ------------------------------------------------------------
+    // O valor inicial é compilado antes de declarar o nome, como no interpretador:
+    // em "A SENHORA FEZ X = X + 1" o X da direita é o de fora.
+    function declaracoes(s, sc) {
+      return s.decls.map((d) => {
+        const valor = d.init ? ex(d.init, sc) : null;
+        const js = declarar(sc, d.name);
+        if (!js) return { repetida: `foge.jaFez(${str(d.name)}, ${d.line}${valor ? ', ' + valor : ''})` };
+        return { js, valor };
+      });
+    }
+
+    function bloco(stmts, sc, n, L) {
+      for (const s of stmts) comando(s, sc, n, L);
+    }
+
+    function comando(s, sc, n, L) {
+      const p = pad(n);
+      switch (s.type) {
+        case 'Var':
+          for (const d of declaracoes(s, sc)) {
+            if (d.repetida) L.push(`${p}${d.repetida};`);
+            else L.push(d.valor ? `${p}let ${d.js} = ${d.valor};` : `${p}let ${d.js};`);
+          }
+          return;
+        case 'Print': {
+          // O interpretador transforma cada valor em texto logo depois de calculá-lo.
+          // Se um valor seguinte pode mudar uma lista já calculada (X++, F(L)...),
+          // o compilador faz o mesmo com foge.formatar, para a saída ser igual.
+          const cedo = s.args.slice(1).some(temEfeito);
+          const args = s.args.map((a) => (cedo ? `foge.formatar(${ex(a, sc)})` : ex(a, sc)));
+          L.push(`${p}foge.gravar(${args.join(', ')});`);
+          return;
+        }
+        case 'Input':
+          for (const t of s.targets) {
+            const js = achar(sc, t.name);
+            L.push(js ? `${p}${js} = foge.ler(${s.line});` : `${p}foge.naoFez(${str(t.name)}, ${t.line});`);
+          }
+          return;
+        case 'If':
+          s.branches.forEach((b, i) => {
+            L.push(`${p}${i ? '} else if' : 'if'} (${ex(b.cond, sc, true)}) {`);
+            bloco(b.body, escopo(sc), n + 1, L);
+          });
+          if (s.elseBody) {
+            L.push(`${p}} else {`);
+            bloco(s.elseBody, escopo(sc), n + 1, L);
+          }
+          L.push(`${p}}`);
+          return;
+        case 'While':
+          L.push(`${p}while (${ex(s.cond, sc, true)}) {`);
+          L.push(`${p}  foge.passo(${s.line});`);
+          bloco(s.body, escopo(sc), n + 1, L);
+          L.push(`${p}}`);
+          return;
+        case 'For': {
+          const fs = escopo(sc);
+          let inicio = '';
+          if (s.init && s.init.type === 'Var') {
+            inicio = 'let ' + declaracoes(s.init, fs).map((d) => {
+              if (d.repetida) return `$repetida${++repetidas} = ${d.repetida}`;
+              return d.valor ? `${d.js} = ${d.valor}` : d.js;
+            }).join(', ');
+          } else if (s.init) {
+            inicio = semValor(s.init.expr, fs);
+          }
+          const cond = s.cond ? ' ' + ex(s.cond, fs, true) : '';
+          const passo = s.step ? ' ' + semValor(s.step, fs) : '';
+          L.push(`${p}for (${inicio};${cond};${passo}) {`);
+          L.push(`${p}  foge.passo(${s.line});`);
+          bloco(s.body, escopo(fs), n + 1, L);
+          L.push(`${p}}`);
+          return;
+        }
+        case 'Break':
+          L.push(`${p}break;`);
+          return;
+        case 'Continue':
+          L.push(`${p}continue;`);
+          return;
+        case 'Return':
+          L.push(s.expr ? `${p}return ${ex(s.expr, sc, true)};` : `${p}return;`);
+          return;
+        case 'Try': {
+          L.push(`${p}try {`);
+          bloco(s.body, escopo(sc), n + 1, L);
+          L.push(`${p}} catch ($erro) {`);
+          const cs = escopo(sc);
+          if (s.errName) L.push(`${p}  let ${declarar(cs, s.errName)} = foge.capturar($erro);`);
+          else L.push(`${p}  foge.capturar($erro);`);
+          bloco(s.catchBody, cs, n + 1, L);
+          L.push(`${p}}`);
+          return;
+        }
+        case 'Throw':
+          L.push(`${p}throw foge.lancar(${ex(s.expr, sc)}, ${s.line});`);
+          return;
+        case 'Expr':
+          L.push(`${p}${semValor(s.expr, sc)};`);
+          return;
+        default:
+          throw new Error('Comando desconhecido: ' + s.type);
+      }
+    }
+
+    // ---- programa ------------------------------------------------------------
+    // Ordem igual à do interpretador: registra as funções, cria as variáveis
+    // globais e depois roda a Assembleia.
+    const G = [];
+    for (const g of ast.globals) {
+      for (const d of declaracoes(g, globais)) {
+        if (d.repetida) G.push(`${d.repetida};`);
+        else G.push(d.valor ? `let ${d.js} = ${d.valor};` : `let ${d.js};`);
+      }
+    }
+
+    const F = [];
+    for (const f of ast.funcs) {
+      const fs = escopo(globais); // a função só enxerga os parâmetros e as globais
+      const nome = nomesFuncoes.get(f.name);
+      F.push(`function ${nome}(${f.params.map((prm) => declarar(fs, prm)).join(', ')}) {`);
+      bloco(f.body, fs, 1, F);
+      F.push('}');
+      F.push(`foge.funcao(${str(f.name)}, ${nome});`);
+      F.push('');
+    }
+
+    const M = ['function assembleia() {'];
+    bloco(ast.main.body, escopo(globais), 1, M);
+    M.push('}', 'assembleia();');
+
+    const L = [
+      "'use strict';",
+      `// Programa FogeScript ${VERSAO} compilado para JavaScript.`,
+      '// As chamadas foge.* conferem os tipos e geram as mesmas mensagens de erro do interpretador.',
+      '// O último número de cada chamada é a linha do código FogeScript.',
+      '',
+    ];
+    if (F.length) L.push('// Funções (NÃO, EU NUNCA FIZ ISSO)', ...F);
+    if (G.length) L.push('// Variáveis globais', ...G, '');
+    L.push(`// ${KW_PHRASE.INICIO}`, ...M);
+    return L.join('\n') + '\n';
+  }
+
+  // O runtime: as funções foge.* que o código gerado chama. Ele reaproveita a
+  // classe Interp só pelas regras (binary, index, funções prontas e limites).
+  function criarRuntime(interp) {
+    const funcoes = new Map();
+    const lista = (obj, linha) => {
+      if (!Array.isArray(obj)) throw new FogeErro('Só dá para trocar posições de uma lista (texto não pode ser alterado)', linha);
+      return obj;
+    };
+    const item = (obj, i, linha) => {
+      const k = interp.index(obj, i, linha);
+      if (k >= obj.length) {
+        throw new FogeErro(`A posição ${k} não existe: só tem ${obj.length} ${Array.isArray(obj) ? 'itens' : 'letras'} (começa do 0)`, linha);
+      }
+      return obj[k];
+    };
+    const guardar = (v, obj, i, linha) => {
+      const k = interp.index(obj, i, linha);
+      if (k > obj.length) {
+        throw new FogeErro(`A posição ${k} não existe. A lista tem ${obj.length} itens, então dá para usar até a posição ${obj.length} (que adiciona no final)`, linha);
+      }
+      obj[k] = v;
+      return v;
+    };
+    const numero = (v, op, linha) => {
+      if (typeof v !== 'number') throw new FogeErro(`"${op}" só funciona com número, e a variável tem ${tipo(v)}`, linha);
+      return v;
+    };
+
+    return {
+      lista,
+      item,
+      guardar,
+      numero,
+      funcao(nome, fn) {
+        funcoes.set(nome, fn);
+      },
+      passo(linha) {
+        interp.tick(linha);
+      },
+      gravar(...valores) {
+        interp.io.write(valores.map((v) => fmt(v)).join(' ') + '\n');
+      },
+      formatar(v) {
+        return fmt(v);
+      },
+      ler(linha) {
+        const t = interp.io.readLine();
+        if (t === null || t === undefined) {
+          throw new FogeErro('A senhora não quer conversar: a Entrada acabou. Coloque mais valores na caixa de Entrada (um por linha)', linha);
+        }
+        return /^\s*-?\d+([.,]\d+)?\s*$/.test(t) ? Number(t.trim().replace(',', '.')) : t;
+      },
+      conta(op, l, r, linha) {
+        return interp.binary(op, l, r, linha);
+      },
+      acumular(op, valor, atual, linha) {
+        return interp.binary(op[0], atual, valor, linha);
+      },
+      negativo(v, linha) {
+        if (typeof v !== 'number') throw new FogeErro(`Não dá para usar "-" em ${tipo(v)}`, linha);
+        return -v;
+      },
+      acumularItem(op, valor, obj, pos, linha, linhaAlvo) {
+        const nv = interp.binary(op[0], item(obj(), pos(), linhaAlvo), valor, linha);
+        return guardar(nv, lista(obj(), linhaAlvo), pos(), linhaAlvo);
+      },
+      atualizarItem(op, prefixo, obj, pos, linha, linhaAlvo) {
+        const atual = numero(item(obj(), pos(), linhaAlvo), op, linha);
+        const nv = op === '++' ? atual + 1 : atual - 1;
+        guardar(nv, lista(obj(), linhaAlvo), pos(), linhaAlvo);
+        return prefixo ? nv : atual;
+      },
+      chamar(nome, args, linha) {
+        const pronta = interp.builtins[nome];
+        if (pronta) {
+          if (args.length !== interp.arity[nome]) {
+            throw new FogeErro(`${nome} espera ${interp.arity[nome]} valor(es), mas recebeu ${args.length}`, linha);
+          }
+          return pronta(args, linha);
+        }
+        const f = funcoes.get(nome);
+        if (!f) throw new FogeErro(`A senhora não conhece a função "${nome}". Declare com "${KW_PHRASE.FUNC} ${nome}(...)"`, linha);
+        if (args.length !== f.length) {
+          throw new FogeErro(`A função "${nome}" espera ${f.length} valor(es), mas recebeu ${args.length}`, linha);
+        }
+        interp.tick(linha);
+        if (++interp.depth > MAX_DEPTH) {
+          interp.depth = 0;
+          throw fatal(`A senhora entrou em mais de ${MAX_DEPTH} chamadas sem voltar. Recursão infinita?`, linha);
+        }
+        try {
+          return f(...args);
+        } finally {
+          if (interp.depth > 0) interp.depth--;
+        }
+      },
+      naoFez(nome, linha) {
+        throw naoFez(nome, linha); // a função naoFez lá de cima, com a mesma mensagem
+      },
+      jaFez(nome, linha) {
+        throw new FogeErro(`A senhora já fez "${nome}" neste bloco. Não dá para declarar de novo`, linha);
+      },
+      lancar(v, linha) {
+        const e = new FogeErro(`Me deixa em paz! ${fmt(v)}`, linha);
+        e.lancado = true;
+        e.valor = v;
+        return e;
+      },
+      capturar(e) {
+        if (!(e instanceof FogeErro) || e.fatal) throw e;
+        return e.lancado ? e.valor : e.message;
+      },
+    };
+  }
+
+  /**
+   * Compila e executa um programa FogeScript.
+   * Recebe as mesmas opções de run() e retorna { ok, output, codigo, error?, linha? },
+   * em que codigo é o JavaScript gerado (null se o programa tem erro de sintaxe).
+   */
+  function runCompiled(src, opts) {
+    opts = opts || {};
+    const out = [];
+    const lines = (opts.input || '').split(/\r?\n/);
+    if (lines.length && lines[lines.length - 1] === '') lines.pop();
+    let ptr = 0;
+    const io = {
+      write(s) {
+        out.push(s);
+        if (opts.onOutput) opts.onOutput(s);
+      },
+      readLine() {
+        if (ptr < lines.length) return lines[ptr++];
+        if (opts.prompt) {
+          const r = opts.prompt();
+          if (r !== null && r !== undefined) return String(r);
+        }
+        return null;
+      },
+    };
+    let codigo = null;
+    try {
+      codigo = compile(src);
+      const programa = new Function('foge', codigo);
+      programa(criarRuntime(new Interp(io)));
+      return { ok: true, output: out.join(''), codigo };
+    } catch (e) {
+      const r = { ok: false, output: out.join(''), codigo };
+      if (e instanceof FogeErro) return Object.assign(r, { error: e.message, linha: e.linha });
+      if (e instanceof RangeError) {
+        return Object.assign(r, { error: 'A senhora correu tanto que a pilha estourou. Recursão profunda demais?' });
+      }
+      if (e instanceof ReferenceError) {
+        const m = /'([^']+)'/.exec(e.message);
+        return Object.assign(r, { error: `A senhora ainda não fez "${m ? m[1] : '?'}": a variável global foi usada antes de ser declarada` });
+      }
+      return Object.assign(r, { error: 'Erro interno do compilador: ' + e.message });
+    }
+  }
+
+  return { run, runCompiled, compile, parse, tokenize, KEYWORDS, FogeErro, version: VERSAO };
 });

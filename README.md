@@ -1,6 +1,6 @@
 # FogeScript
 
-A linguagem de programação da senhora que trabalha na Assembleia. É inspirada na [BIRL](https://birl-language.github.io/), mas roda **direto no navegador**: o interpretador foi escrito em JavaScript, então não precisa de servidor nem de compilador.
+A linguagem de programação da senhora que trabalha na Assembleia. É inspirada na [BIRL](https://birl-language.github.io/), mas roda **direto no navegador**: o interpretador e o compilador foram escritos em JavaScript, então não precisa de servidor nem de instalar nada.
 
 Para usar, abra o `index.html` ou publique o repositório no GitHub Pages.
 
@@ -9,7 +9,7 @@ Para usar, abra o `index.html` ou publique o repositório no GitHub Pages.
 | Arquivo | O que é |
 |---|---|
 | `index.html` | Site com editor, entrada/saída, dicionário e tutorial |
-| `fogescript.js` | Interpretador (léxico, sintático e execução) |
+| `fogescript.js` | Interpretador (léxico, sintático e execução) e compilador para JavaScript |
 | `exemplos/*.foge` | Programas de exemplo |
 
 ## Dicionário oficial
@@ -57,6 +57,39 @@ A SENHORA TRABALHA NA ASSEMBLEIA?
     FUGIU
 FUGIU
 ```
+
+## Interpretador e compilador
+
+O mesmo programa pode rodar de dois jeitos. Os dois usam o mesmo léxico e o mesmo sintático; só a última etapa muda.
+
+| Botão no site | O que acontece | Função |
+|---|---|---|
+| **Pega a senhora!** | O interpretador percorre a árvore (AST) e executa cada nó | `FogeScript.run(codigo, opcoes)` |
+| **Compilar para JavaScript** | O compilador traduz a árvore para JavaScript, mostra o código gerado e roda esse código | `FogeScript.compile(codigo)` e `FogeScript.runCompiled(codigo, opcoes)` |
+
+O código gerado chama funções de apoio `foge.*` (o runtime) para conferir os tipos e gerar as mesmas mensagens de erro do interpretador. O último número de cada chamada é a linha do código FogeScript. Por exemplo:
+
+```
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ X = 1 + 2 * 3;
+    TEMOS GRAVADO!(X);
+FUGIU
+```
+
+vira
+
+```js
+function assembleia() {
+  let X = foge.conta("+", 1, foge.conta("*", 2, 3, 2), 2);
+  foge.gravar(X);
+}
+assembleia();
+```
+
+Diferenças do modo compilado:
+
+- O limite de 5 milhões de passos conta voltas de laço e chamadas de função. No interpretador ele conta cada comando.
+- Se uma função usar uma variável global que ainda não foi declarada (porque foi chamada por outra global declarada antes), o erro aparece sem o número da linha.
 
 ## O que mudou em relação ao dicionário original
 
