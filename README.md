@@ -177,11 +177,3 @@ A SENHORA TRABALHA NA ASSEMBLEIA?
     FUGIU
 FUGIU
 ```
-
-## O que mudou em relação ao dicionário original
-
-- **Conflito corrigido:** `NUNCA FIZ ISSO` (false) estava dentro de `NÃO, EU NUNCA FIZ ISSO` (function). Agora true e false são `TÁ GRAVADO` e `NÃO TÁ GRAVADO`.
-- **Fim de bloco:** o original não tinha um. Agora é `FUGIU`, no mesmo papel do `BIRL` na BIRL.
-- **Novidades:** else if (`ENTÃO A SENHORA É O QUÊ?`), catch (`A SENHORA TÁ NERVOSA?`) e throw (`ME DEIXA EM PAZ!`). O try não tinha como tratar o erro.
-- **Sem tipos como em C:** uma única palavra declara qualquer valor, e o `QUER CONVERSAR COMIGO?` não usa `%d`. O tipo de cada variável é deduzido pela análise semântica.
-- **Proteções:** laço infinito e recursão infinita param com uma mensagem, em vez de travar o navegador.
