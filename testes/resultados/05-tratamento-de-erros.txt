@@ -1,0 +1,94 @@
+=== Código FogeScript (testes/validos/05-tratamento-de-erros.foge) ========
+/*
+    Teste 5: erros na hora de rodar, tratados com DEIXA EU TE PERGUNTAR (try).
+    Entrada: três pares de números para dividir (um valor por linha).
+*/
+NÃO, EU NUNCA FIZ ISSO dividir(a, b)
+    SE A SENHORA NÃO É FUNCIONÁRIA (b == 0)
+        ME DEIXA EM PAZ! "não divido por zero";
+    FUGIU
+    CHEGA DE CORRER a / b;
+FUGIU
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ a, b;
+    A SENHORA FEZ lista = [10, 20, 30];
+    SENHORA? SENHORA?! (A SENHORA FEZ vez = 1; vez <= 3; vez++)
+        QUER CONVERSAR COMIGO?(a, b);
+        DEIXA EU TE PERGUNTAR
+            TEMOS GRAVADO!(a, "/", b, "=", dividir(a, b));
+        A SENHORA TÁ NERVOSA? (motivo)
+            TEMOS GRAVADO!("A senhora tá nervosa:", motivo);
+        FUGIU
+    FUGIU
+
+    // erro do próprio runtime: uma posição que não existe na lista
+    DEIXA EU TE PERGUNTAR
+        TEMOS GRAVADO!(lista[b]);
+    A SENHORA TÁ NERVOSA? (motivo)
+        TEMOS GRAVADO!("Erro capturado:", motivo);
+    FUGIU
+    TEMOS GRAVADO!("Fim da sessão.");
+FUGIU
+
+=== Entrada ===============================================================
+10
+2
+7
+0
+abc
+3
+
+=== JavaScript gerado: node tradutor.js testes/validos/05-tratamento-de-erros.foge ===
+// O arquivo completo é testes/resultados/05-tratamento-de-erros.js: este programa mais o runtime (funções foge.*).
+
+'use strict';
+// Programa FogeScript traduzido para JavaScript (tradutor 1.2.0).
+// Contas com tipos garantidos pela análise semântica usam os operadores do JavaScript.
+// As outras chamam o runtime (foge.*), que confere os tipos na hora de rodar.
+// O último número de cada chamada foge.* é a linha do código FogeScript.
+
+// Funções (NÃO, EU NUNCA FIZ ISSO)
+function dividir(a, b) {
+  if (b === 0) {
+    throw foge.lancar("não divido por zero", 7);
+  }
+  return foge.conta("/", a, b, 9);
+}
+foge.funcao("dividir", dividir);
+
+// A SENHORA TRABALHA NA ASSEMBLEIA?
+function assembleia() {
+  let a;
+  let b;
+  let lista = [10, 20, 30];
+  for (let vez = 1; vez <= 3; vez++) {
+    foge.passo(15);
+    a = foge.ler(16);
+    b = foge.ler(16);
+    try {
+      foge.gravar(foge.formatar(a), "/", foge.formatar(b), "=", foge.chamar("dividir", [a, b], 18));
+    } catch ($erro) {
+      let motivo = foge.capturar($erro);
+      foge.gravar("A senhora tá nervosa:", motivo);
+    }
+  }
+  try {
+    foge.gravar(foge.item(lista, b, 26));
+  } catch ($erro) {
+    let motivo = foge.capturar($erro);
+    foge.gravar("Erro capturado:", motivo);
+  }
+  foge.gravar("Fim da sessão.");
+}
+assembleia();
+
+=== Saída de: node testes/resultados/05-tratamento-de-erros.js ============
+10 / 2 = 5
+A senhora tá nervosa: não divido por zero
+A senhora tá nervosa: A conta "/" só funciona com números, e recebeu texto e número
+Erro capturado: A posição 3 não existe: só tem 3 itens (começa do 0)
+Fim da sessão.
+
+=== Conferência ===========================================================
+igual à saída esperada nos três jeitos de rodar (interpretador, site e Node)

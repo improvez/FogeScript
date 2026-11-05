@@ -1,0 +1,13 @@
+=== Código FogeScript (testes/erros/sintatico-3-comando-incompleto.foge) ===
+// ESPERADO: erro sintático na linha 5, coluna 29
+// Erro sintático: a atribuição ficou sem o valor depois do "=".
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ salario = ;
+    TEMOS GRAVADO!(salario);
+FUGIU
+
+=== Resultado de: node tradutor.js testes/erros/sintatico-3-comando-incompleto.foge ===
+Erro sintático na linha 5, coluna 29: Esperava um valor, mas veio ";"
+  5 |     A SENHORA FEZ salario = ;
+    |                             ^

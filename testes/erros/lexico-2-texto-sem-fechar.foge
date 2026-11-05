@@ -1,0 +1,6 @@
+// ESPERADO: erro léxico na linha 5, coluna 20
+// Erro léxico: o texto abre aspas e a linha acaba antes de fechar.
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    TEMOS GRAVADO!("Bom dia, senhora);
+FUGIU

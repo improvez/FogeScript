@@ -1,0 +1,8 @@
+// ESPERADO: erro léxico na linha 6, coluna 30
+// Erro léxico: o "@" não faz parte da linguagem, então o analisador léxico
+// não consegue formar nenhum token com ele.
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ total = 10 @ 2;
+    TEMOS GRAVADO!(total);
+FUGIU

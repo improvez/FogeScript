@@ -1,0 +1,11 @@
+// ESPERADO: erro de execução na linha 10
+// Erro de execução: o programa está certo, mas o segundo número da Entrada
+// é 0. A divisão por zero só aparece na hora de rodar, e o programa para.
+// Entrada: 10 e 0.
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ a, b;
+    QUER CONVERSAR COMIGO?(a, b);
+    TEMOS GRAVADO!("Dividindo", a, "por", b);
+    TEMOS GRAVADO!("Resultado:", a / b);
+FUGIU

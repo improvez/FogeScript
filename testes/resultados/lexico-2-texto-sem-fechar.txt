@@ -1,0 +1,12 @@
+=== Código FogeScript (testes/erros/lexico-2-texto-sem-fechar.foge) =======
+// ESPERADO: erro léxico na linha 5, coluna 20
+// Erro léxico: o texto abre aspas e a linha acaba antes de fechar.
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    TEMOS GRAVADO!("Bom dia, senhora);
+FUGIU
+
+=== Resultado de: node tradutor.js testes/erros/lexico-2-texto-sem-fechar.foge ===
+Erro léxico na linha 5, coluna 20: Texto sem as aspas de fechamento: faltou um " antes do fim da linha
+  5 |     TEMOS GRAVADO!("Bom dia, senhora);
+    |                    ^

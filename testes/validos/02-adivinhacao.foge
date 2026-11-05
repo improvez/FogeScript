@@ -1,0 +1,33 @@
+/*
+    Teste 2: entrada de dados, decisões e repetição.
+    A repórter tenta adivinhar quantos dias a senhora trabalhou no mês.
+    Cada linha da Entrada é um palpite. O laço para quando ela acerta
+    ou quando acabam as tentativas.
+*/
+A SENHORA FEZ DIAS_TRABALHADOS = 3;    // o segredo
+A SENHORA FEZ MAX_TENTATIVAS = 5;
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ palpite;
+    A SENHORA FEZ tentativas = 0;
+    A SENHORA FEZ acertou = NÃO TÁ GRAVADO;
+
+    TEMOS GRAVADO!("Repórter: Quantos dias a senhora trabalhou este mês?");
+    ENQUANTO TIVER CORRENDO (!acertou && tentativas < MAX_TENTATIVAS)
+        QUER CONVERSAR COMIGO?(palpite);
+        tentativas++;
+        SE A SENHORA NÃO É FUNCIONÁRIA (palpite == DIAS_TRABALHADOS)
+            acertou = TÁ GRAVADO;
+        ENTÃO A SENHORA É O QUÊ? (palpite > DIAS_TRABALHADOS)
+            TEMOS GRAVADO!(palpite, "dias? Menos, senhora, menos.");
+        E TÁ CORRENDO POR QUÊ?
+            TEMOS GRAVADO!(palpite, "dias? Mais que isso!");
+        FUGIU
+    FUGIU
+
+    SE A SENHORA NÃO É FUNCIONÁRIA (acertou)
+        TEMOS GRAVADO!("TEMOS GRAVADO! Foram", DIAS_TRABALHADOS, "dias. Acertou em", tentativas, "tentativa(s).");
+    E TÁ CORRENDO POR QUÊ?
+        TEMOS GRAVADO!("Ela fugiu antes de responder.");
+    FUGIU
+FUGIU

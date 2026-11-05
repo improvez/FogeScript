@@ -1,0 +1,31 @@
+/*
+    Teste 5: erros na hora de rodar, tratados com DEIXA EU TE PERGUNTAR (try).
+    Entrada: três pares de números para dividir (um valor por linha).
+*/
+NÃO, EU NUNCA FIZ ISSO dividir(a, b)
+    SE A SENHORA NÃO É FUNCIONÁRIA (b == 0)
+        ME DEIXA EM PAZ! "não divido por zero";
+    FUGIU
+    CHEGA DE CORRER a / b;
+FUGIU
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ a, b;
+    A SENHORA FEZ lista = [10, 20, 30];
+    SENHORA? SENHORA?! (A SENHORA FEZ vez = 1; vez <= 3; vez++)
+        QUER CONVERSAR COMIGO?(a, b);
+        DEIXA EU TE PERGUNTAR
+            TEMOS GRAVADO!(a, "/", b, "=", dividir(a, b));
+        A SENHORA TÁ NERVOSA? (motivo)
+            TEMOS GRAVADO!("A senhora tá nervosa:", motivo);
+        FUGIU
+    FUGIU
+
+    // erro do próprio runtime: uma posição que não existe na lista
+    DEIXA EU TE PERGUNTAR
+        TEMOS GRAVADO!(lista[b]);
+    A SENHORA TÁ NERVOSA? (motivo)
+        TEMOS GRAVADO!("Erro capturado:", motivo);
+    FUGIU
+    TEMOS GRAVADO!("Fim da sessão.");
+FUGIU

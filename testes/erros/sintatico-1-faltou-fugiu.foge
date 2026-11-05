@@ -1,0 +1,11 @@
+// ESPERADO: erro sintático na linha 11, coluna 10
+// Erro sintático: o SE foi fechado com FUGIU, mas faltou outro FUGIU para
+// fechar a Assembleia. O analisador chega ao fim do código com um bloco aberto.
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ idade = 20;
+    SE A SENHORA NÃO É FUNCIONÁRIA (idade >= 18)
+        TEMOS GRAVADO!("Maior de idade");
+    E TÁ CORRENDO POR QUÊ?
+        TEMOS GRAVADO!("Menor de idade");
+    FUGIU

@@ -1,0 +1,7 @@
+// ESPERADO: erro sintático na linha 5, coluna 29
+// Erro sintático: a atribuição ficou sem o valor depois do "=".
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ salario = ;
+    TEMOS GRAVADO!(salario);
+FUGIU

@@ -1,0 +1,7 @@
+// ESPERADO: erro léxico na linha 5, coluna 19
+// Erro léxico: um nome de variável não pode começar com número.
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ 2dias = 3;
+    TEMOS GRAVADO!(2dias);
+FUGIU

@@ -1,0 +1,14 @@
+=== Código FogeScript (testes/erros/lexico-1-simbolo-estranho.foge) =======
+// ESPERADO: erro léxico na linha 6, coluna 30
+// Erro léxico: o "@" não faz parte da linguagem, então o analisador léxico
+// não consegue formar nenhum token com ele.
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ total = 10 @ 2;
+    TEMOS GRAVADO!(total);
+FUGIU
+
+=== Resultado de: node tradutor.js testes/erros/lexico-1-simbolo-estranho.foge ===
+Erro léxico na linha 6, coluna 30: Símbolo estranho "@": ele não faz parte da linguagem
+  6 |     A SENHORA FEZ total = 10 @ 2;
+    |                              ^

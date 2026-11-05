@@ -1,0 +1,40 @@
+/*
+    Teste 3: funções, listas, laço SENHORA? SENHORA?! (for) e decisões encadeadas.
+    Entrada: o nome da funcionária, quantos dias ela trabalhou e,
+    depois, as horas de cada dia (uma resposta por linha).
+*/
+NÃO, EU NUNCA FIZ ISSO somar(lista)
+    A SENHORA FEZ total = 0;
+    SENHORA? SENHORA?! (A SENHORA FEZ i = 0; i < TAMANHO(lista); i++)
+        total += lista[i];
+    FUGIU
+    CHEGA DE CORRER total;
+FUGIU
+
+NÃO, EU NUNCA FIZ ISSO classificar(media)
+    SE A SENHORA NÃO É FUNCIONÁRIA (media >= 8)
+        CHEGA DE CORRER "funcionária exemplar";
+    ENTÃO A SENHORA É O QUÊ? (media >= 4)
+        CHEGA DE CORRER "meio expediente";
+    FUGIU
+    CHEGA DE CORRER "funcionária fantasma";
+FUGIU
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ nome, dias;
+    A SENHORA FEZ horas = [];
+
+    QUER CONVERSAR COMIGO?(nome, dias);
+    SENHORA? SENHORA?! (A SENHORA FEZ d = 1; d <= dias; d++)
+        A SENHORA FEZ h;
+        QUER CONVERSAR COMIGO?(h);
+        horas[TAMANHO(horas)] = h;
+    FUGIU
+
+    A SENHORA FEZ total = somar(horas);
+    A SENHORA FEZ media = total / TAMANHO(horas);
+    TEMOS GRAVADO!("Funcionária:", nome);
+    TEMOS GRAVADO!("Horas por dia:", horas);
+    TEMOS GRAVADO!("Total:", total, "horas | Média:", media);
+    TEMOS GRAVADO!("Veredito:", classificar(media));
+FUGIU

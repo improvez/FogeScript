@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>FogeScript - Especificação da linguagem</title>
+<style>
+@page {
+  size: A4;
+  margin: 30mm 20mm 20mm 30mm;
+  @top-right { content: counter(page); font: 10pt Arial, sans-serif; vertical-align: bottom; padding-bottom: 8mm; }
+}
+@page :first { @top-right { content: none; } }
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0 auto; max-width: 160mm; color: #000; background: #fff; font: 11pt/1.5 Arial, Helvetica, sans-serif; text-align: justify; hyphens: manual; }
+h2 { font-size: 11pt; font-weight: bold; margin: 16pt 0 8pt; break-after: avoid; text-align: left; }
+h3 { font-size: 11pt; font-weight: bold; margin: 12pt 0 6pt; break-after: avoid; text-align: left; }
+p { margin: 0 0 5pt; text-indent: 12.5mm; orphans: 3; widows: 3; }
+ul { margin: 0 0 6pt; padding-left: 12.5mm; }
+li { margin-bottom: 2pt; }
+code { font-family: Consolas, "Courier New", monospace; font-size: 10pt; }
+p code, li code { white-space: nowrap; }
+pre { font: 8.8pt/1.28 Consolas, "Courier New", monospace; border: 0.5pt solid #888; background: #f6f6f6; padding: 2.5mm 3mm; margin: 0 0 10pt; white-space: pre-wrap; overflow-wrap: anywhere; text-align: left; }
+.bloco { break-inside: avoid; margin-top: 8pt; }
+.legenda { text-indent: 0; text-align: center; font-size: 10pt; line-height: 1.3; margin: 0 0 4pt; break-after: avoid; }
+table { width: 100%; border-collapse: collapse; font-size: 9.5pt; line-height: 1.3; text-align: left; margin: 0 0 10pt; }
+th, td { border: 0.5pt solid #444; padding: 1.2mm 1.8mm; vertical-align: top; }
+th { background: #e6e6e6; font-weight: bold; }
+td code, th code { font-size: 8.8pt; }
+table.comandos td { padding: 0.7mm 1.6mm; line-height: 1.25; }
+table.comandos td code { font-size: 8.5pt; }
+table.comandos td:nth-child(1) { width: 38%; }
+table.comandos td:nth-child(2) { width: 24%; }
+table.comandos td:nth-child(1) code { white-space: nowrap; }
+table.simbolos td:nth-child(5) { white-space: nowrap; }
+table.arquivos td:first-child { white-space: nowrap; width: 24%; }
+table.cli td:first-child { white-space: nowrap; width: 56%; }
+table.testes-validos td:first-child { width: 38%; }
+table.testes td:first-child { width: 47%; white-space: nowrap; }
+table.testes td:nth-child(3) { white-space: nowrap; }
+.figura { break-inside: avoid; margin: 8pt 0 12pt; }
+.figura svg { display: block; width: 100%; height: auto; }
+
+/* capa */
+.capa { height: 245mm; display: flex; flex-direction: column; justify-content: space-between; text-align: center; break-after: page; }
+.capa p { text-indent: 0; margin: 0; }
+.capa .autores { font-weight: bold; line-height: 1.6; }
+.capa .titulo { font-size: 16pt; font-weight: bold; margin-bottom: 6pt; }
+.capa .natureza { width: 80mm; margin: 14mm 0 0 auto; text-align: justify; font-size: 10.5pt; line-height: 1.3; }
+.capa .ano { font-weight: bold; }
+
+/* sumário */
+.sumario-titulo { text-align: center; font-weight: bold; text-indent: 0; margin-bottom: 14pt; }
+ol.sumario { list-style: none; padding: 0; margin: 0; break-after: page; }
+ol.sumario li { display: flex; align-items: baseline; margin: 0 0 2pt; line-height: 1.4; }
+ol.sumario li.n2 { font-weight: bold; margin-top: 5pt; }
+ol.sumario li.n3 { padding-left: 8mm; }
+ol.sumario .pontos { flex: 1; border-bottom: 1pt dotted #000; margin: 0 2mm; transform: translateY(-3pt); }
+
+.referencias p { text-indent: 0; text-align: left; margin-bottom: 10pt; line-height: 1.2; }
+</style>
+</head>
+<body>
+
+<section class="capa">
+  <div class="autores">
+    <p>JEDIEL ELIEZER SANTOS DE OLIVEIRA</p>
+    <p>LUCAS ABATI ZANOTTO</p>
+  </div>
+  <div>
+    <p class="titulo">FOGESCRIPT</p>
+    <p>Uma linguagem de programação inspirada no meme<br>“A senhora trabalha na Assembleia?”</p>
+    <p class="natureza">Documento de especificação apresentado à disciplina de Compiladores, como parte da atividade “Do meme ao código”, com a definição da linguagem FogeScript e do seu tradutor para JavaScript.</p>
+  </div>
+  <p class="ano">2026</p>
+</section>
+
+<p class="sumario-titulo">SUMÁRIO</p>
+<ol class="sumario">
+<li class="n2"><span class="t">1 INTRODUÇÃO</span><span class="pontos"></span><span class="p">3</span></li>
+<li class="n2"><span class="t">2 O MEME E A ESCOLHA DO TEMA</span><span class="pontos"></span><span class="p">3</span></li>
+<li class="n3"><span class="t">2.1 Origem do meme</span><span class="pontos"></span><span class="p">3</span></li>
+<li class="n3"><span class="t">2.2 Justificativa</span><span class="pontos"></span><span class="p">3</span></li>
+<li class="n3"><span class="t">2.3 Diferenças em relação à BIRL</span><span class="pontos"></span><span class="p">4</span></li>
+<li class="n2"><span class="t">3 A LINGUAGEM FOGESCRIPT</span><span class="pontos"></span><span class="p">4</span></li>
+<li class="n3"><span class="t">3.1 Tabela de comandos</span><span class="pontos"></span><span class="p">4</span></li>
+<li class="n3"><span class="t">3.2 Estrutura de um programa</span><span class="pontos"></span><span class="p">5</span></li>
+<li class="n3"><span class="t">3.3 Operadores</span><span class="pontos"></span><span class="p">5</span></li>
+<li class="n3"><span class="t">3.4 Tipos de dados</span><span class="pontos"></span><span class="p">5</span></li>
+<li class="n3"><span class="t">3.5 Exemplo de programa</span><span class="pontos"></span><span class="p">6</span></li>
+<li class="n2"><span class="t">4 ANÁLISE LÉXICA</span><span class="pontos"></span><span class="p">6</span></li>
+<li class="n3"><span class="t">4.1 Definição dos tokens</span><span class="pontos"></span><span class="p">7</span></li>
+<li class="n3"><span class="t">4.2 Regras de reconhecimento</span><span class="pontos"></span><span class="p">7</span></li>
+<li class="n3"><span class="t">4.3 Exemplo</span><span class="pontos"></span><span class="p">7</span></li>
+<li class="n3"><span class="t">4.4 Erros léxicos</span><span class="pontos"></span><span class="p">8</span></li>
+<li class="n2"><span class="t">5 ANÁLISE SINTÁTICA</span><span class="pontos"></span><span class="p">8</span></li>
+<li class="n3"><span class="t">5.1 Gramática formal</span><span class="pontos"></span><span class="p">9</span></li>
+<li class="n3"><span class="t">5.2 Árvore sintática</span><span class="pontos"></span><span class="p">10</span></li>
+<li class="n3"><span class="t">5.3 Erros sintáticos</span><span class="pontos"></span><span class="p">10</span></li>
+<li class="n2"><span class="t">6 ANÁLISE SEMÂNTICA</span><span class="pontos"></span><span class="p">11</span></li>
+<li class="n3"><span class="t">6.1 Escopos e tabela de símbolos</span><span class="pontos"></span><span class="p">11</span></li>
+<li class="n3"><span class="t">6.2 Inferência de tipos</span><span class="pontos"></span><span class="p">12</span></li>
+<li class="n3"><span class="t">6.3 Verificações</span><span class="pontos"></span><span class="p">13</span></li>
+<li class="n2"><span class="t">7 GERAÇÃO DE CÓDIGO</span><span class="pontos"></span><span class="p">14</span></li>
+<li class="n2"><span class="t">8 TESTES E EVIDÊNCIAS DE FUNCIONAMENTO</span><span class="pontos"></span><span class="p">15</span></li>
+<li class="n3"><span class="t">8.1 Programas de teste</span><span class="pontos"></span><span class="p">15</span></li>
+<li class="n3"><span class="t">8.2 Execução dos testes</span><span class="pontos"></span><span class="p">16</span></li>
+<li class="n3"><span class="t">8.3 Evidência 1: entrada de dados, decisões e repetição</span><span class="pontos"></span><span class="p">16</span></li>
+<li class="n3"><span class="t">8.4 Evidência 2: funções, listas e laço para</span><span class="pontos"></span><span class="p">18</span></li>
+<li class="n3"><span class="t">8.5 Evidência 3: erro na hora de rodar</span><span class="pontos"></span><span class="p">21</span></li>
+<li class="n2"><span class="t">9 COMO COMPILAR E EXECUTAR</span><span class="pontos"></span><span class="p">21</span></li>
+<li class="n2"><span class="t">10 CONSIDERAÇÕES FINAIS</span><span class="pontos"></span><span class="p">22</span></li>
+<li class="n2"><span class="t">REFERÊNCIAS</span><span class="pontos"></span><span class="p">23</span></li>
+</ol>
+
+<h2>1 INTRODUÇÃO</h2>
+<p>Este documento apresenta a FogeScript, a linguagem de programação que criamos para a atividade “Do meme ao código” da disciplina de Compiladores. A linguagem foi inspirada no meme “A senhora trabalha na Assembleia?”, e todas as palavras reservadas são falas ou situações do vídeo.</p>
+<p>Junto com a linguagem desenvolvemos um tradutor, que recebe um programa escrito em FogeScript (um arquivo com extensão <code>.foge</code>), faz a análise léxica, a análise sintática e a análise semântica e, se não encontrar erros, gera um programa equivalente em JavaScript. O programa gerado pode ser executado com o Node.js.</p>
+<p>Escolhemos o JavaScript como linguagem de destino porque assim o mesmo tradutor funciona em dois lugares: na linha de comando, com o Node.js, e no navegador. No site do projeto (https://fogescript.vercel.app) dá para escrever um programa, ver o resultado de cada etapa da tradução e rodar o código gerado. O tradutor também foi escrito em JavaScript e não usa bibliotecas externas, ou seja, o analisador léxico, o analisador sintático e a análise semântica foram programados pelo grupo. O código-fonte está no GitHub, em https://github.com/improvez/FogeScript.</p>
+<p>A seção 2 explica o meme e por que ele foi escolhido. A seção 3 descreve os comandos, operadores e tipos da linguagem, e as seções 4 a 7 explicam cada etapa do tradutor. Na seção 8 estão os programas de teste e as evidências de funcionamento, e na seção 9 as instruções para compilar e executar o projeto.</p>
+
+<h2>2 O MEME E A ESCOLHA DO TEMA</h2>
+<h3>2.1 Origem do meme</h3>
+<p>O meme vem de um vídeo de reportagem que circulou muito nas redes sociais. Na gravação, uma mulher é abordada na rua e perguntam a ela se trabalha na Assembleia. Ela nega, diz que nunca fez aquilo e sai correndo, enquanto a equipe de reportagem vai atrás chamando por ela. A pergunta “A senhora trabalha na Assembleia?” e outras falas do vídeo viraram bordão na internet brasileira.</p>
+<h3>2.2 Justificativa</h3>
+<p>Escolhemos esse meme porque ele é bem conhecido e as falas são curtas, então quem já viu o vídeo reconhece as frases quando lê um programa. Além disso, a história do vídeo tem uma sequência que combina com a estrutura de um programa. A pergunta da reportagem abre o programa (<code>A SENHORA TRABALHA NA ASSEMBLEIA?</code>) e a fuga fecha cada bloco (<code>FUGIU</code>). A perseguição virou os laços de repetição (<code>ENQUANTO TIVER CORRENDO</code> e <code>SENHORA? SENHORA?!</code>), e o “volta aqui!” é o comando que interrompe o laço. A negação “não, eu nunca fiz isso” declara uma função, e o que foi gravado pela câmera é a saída do programa (<code>TEMOS GRAVADO!</code>).</p>
+<p>O meme também serviu para o tratamento de erros, que não era obrigatório: o repórter faz a pergunta (<code>DEIXA EU TE PERGUNTAR</code>, que equivale ao try), a senhora fica nervosa (<code>A SENHORA TÁ NERVOSA?</code>, o catch) e pede para ser deixada em paz (<code>ME DEIXA EM PAZ!</code>, o throw).</p>
+<h3>2.3 Diferenças em relação à BIRL</h3>
+<p>A BIRL foi a inspiração do trabalho, mas tentamos não copiar a sintaxe dela. Na FogeScript as palavras reservadas são frases inteiras, com espaço e pontuação, e o analisador léxico reconhece cada frase como um único token, com ou sem acento e em maiúsculas ou minúsculas. Existe um único terminador de bloco (<code>FUGIU</code>), usado também no se/senão, e a declaração de variável não tem tipo, porque quem descobre o tipo é a análise semântica. Também incluímos listas, try/catch e algumas funções prontas (<code>TAMANHO</code>, <code>NUMERO</code>, <code>INTEIRO</code>, <code>TEXTO</code> e <code>ALEATORIO</code>).</p>
+
+<h2>3 A LINGUAGEM FOGESCRIPT</h2>
+<h3>3.1 Tabela de comandos</h3>
+<div class="bloco">
+<p class="legenda" id="t-comandos">Tabela 1 – Comandos da linguagem FogeScript</p>
+<table class="comandos">
+<thead><tr><th>Expressão do meme</th><th>O que faz</th><th>Tradução para JavaScript</th></tr></thead>
+<tbody>
+<tr><td><code>A SENHORA TRABALHA NA ASSEMBLEIA?</code></td><td>Início do programa</td><td><code>function assembleia() {</code></td></tr>
+<tr><td><code>FUGIU</code></td><td>Fim de bloco</td><td><code>}</code></td></tr>
+<tr><td><code>A SENHORA FEZ x = 1;</code></td><td>Declara uma variável</td><td><code>let x = 1;</code></td></tr>
+<tr><td><code>TEMOS GRAVADO!(a, b);</code></td><td>Saída (print)</td><td><code>foge.gravar(a, b);</code></td></tr>
+<tr><td><code>QUER CONVERSAR COMIGO?(x);</code></td><td>Entrada (input)</td><td><code>x = foge.ler(linha);</code></td></tr>
+<tr><td><code>SE A SENHORA NÃO É FUNCIONÁRIA (c)</code></td><td>Se (if)</td><td><code>if (c) {</code></td></tr>
+<tr><td><code>ENTÃO A SENHORA É O QUÊ? (c)</code></td><td>Senão se (else if)</td><td><code>} else if (c) {</code></td></tr>
+<tr><td><code>E TÁ CORRENDO POR QUÊ?</code></td><td>Senão (else)</td><td><code>} else {</code></td></tr>
+<tr><td><code>ENQUANTO TIVER CORRENDO (c)</code></td><td>Enquanto (while)</td><td><code>while (c) {</code></td></tr>
+<tr><td><code>SENHORA? SENHORA?! (ini; c; passo)</code></td><td>Para (for)</td><td><code>for (ini; c; passo) {</code></td></tr>
+<tr><td><code>VOLTA AQUI!</code></td><td>Sai do laço (break)</td><td><code>break;</code></td></tr>
+<tr><td><code>DEIXA ELA CORRER</code></td><td>Pular (continue)</td><td><code>continue;</code></td></tr>
+<tr><td><code>NÃO, EU NUNCA FIZ ISSO f(a, b)</code></td><td>Declara uma função</td><td><code>function f(a, b) {</code></td></tr>
+<tr><td><code>CHAMA A SENHORA f(1, 2)</code></td><td>Chamada de função</td><td><code>foge.chamar("f", [1, 2], linha)</code></td></tr>
+<tr><td><code>CHEGA DE CORRER valor;</code></td><td>Retorno (return)</td><td><code>return valor;</code></td></tr>
+<tr><td><code>TÁ GRAVADO</code></td><td>Verdadeiro</td><td><code>true</code></td></tr>
+<tr><td><code>NÃO TÁ GRAVADO</code></td><td>Falso</td><td><code>false</code></td></tr>
+<tr><td><code>DEIXA EU TE PERGUNTAR</code></td><td>Tentar (try)</td><td><code>try {</code></td></tr>
+<tr><td><code>A SENHORA TÁ NERVOSA? (e)</code></td><td>Captura o erro (catch)</td><td><code>} catch (e) {</code></td></tr>
+<tr><td><code>ME DEIXA EM PAZ! "msg";</code></td><td>Lança um erro (throw)</td><td><code>throw foge.lancar("msg", linha);</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>A Tabela 1 mostra a correspondência entre as expressões do meme e os comandos de programação, e como cada comando é traduzido para JavaScript. O <code>FUGIU</code> fecha qualquer bloco: o programa, o se, os laços, as funções e o try. Na chamada de função, o <code>CHAMA A SENHORA</code> é opcional, então <code>f(1, 2)</code> também funciona. Na tradução, <code>linha</code> é o número da linha no programa FogeScript, usado nas mensagens de erro, e as funções que começam com <code>foge.</code> fazem parte do runtime, explicado na seção 7.</p>
+
+<h3>3.2 Estrutura de um programa</h3>
+<p>Todo programa tem um bloco principal, que começa com <code>A SENHORA TRABALHA NA ASSEMBLEIA?</code> e termina com <code>FUGIU</code>. Antes ou depois desse bloco podem vir declarações de funções e de variáveis globais. O ponto e vírgula no fim dos comandos é opcional. As palavras reservadas podem ser escritas em maiúsculas ou minúsculas, com ou sem acento, mas os nomes de variáveis diferenciam maiúsculas de minúsculas.</p>
+<p>Os comentários seguem o formato do C e do JavaScript: <code>//</code> comenta até o fim da linha e <code>/* ... */</code> comenta um trecho de várias linhas.</p>
+
+<h3>3.3 Operadores</h3>
+<div class="bloco">
+<p class="legenda" id="t-operadores">Tabela 2 – Operadores</p>
+<table>
+<thead><tr><th>Tipo</th><th>Operadores</th><th>Exemplo</th></tr></thead>
+<tbody>
+<tr><td>Aritméticos</td><td><code>+</code> <code>-</code> <code>*</code> <code>/</code> <code>%</code> (resto)</td><td><code>total / dias</code></td></tr>
+<tr><td>Relacionais</td><td><code>==</code> <code>!=</code> <code>&lt;</code> <code>&gt;</code> <code>&lt;=</code> <code>&gt;=</code></td><td><code>idade &gt;= 18</code></td></tr>
+<tr><td>Lógicos</td><td><code>&amp;&amp;</code> (e), <code>||</code> (ou), <code>!</code> (não)</td><td><code>!acertou &amp;&amp; tentativas &lt; 5</code></td></tr>
+<tr><td>Atribuição</td><td><code>=</code> <code>+=</code> <code>-=</code> <code>*=</code> <code>/=</code> <code>%=</code></td><td><code>x += 5</code></td></tr>
+<tr><td>Incremento e decremento</td><td><code>++</code> <code>--</code></td><td><code>i++</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>O <code>+</code> também junta textos, e um texto somado com outro valor vira texto (<code>"Dia " + 3</code> dá <code>"Dia 3"</code>).</p>
+
+<h3>3.4 Tipos de dados</h3>
+<div class="bloco">
+<p class="legenda" id="t-tipos">Tabela 3 – Tipos de dados</p>
+<table>
+<thead><tr><th>Tipo</th><th>Exemplos</th><th>Observações</th></tr></thead>
+<tbody>
+<tr><td>número</td><td><code>37</code>, <code>8800.50</code>, <code>-1</code></td><td>Inteiros e números com casas decimais</td></tr>
+<tr><td>texto</td><td><code>"Dona Cida"</code>, <code>'oi'</code></td><td>Aspas duplas ou simples. Aceita <code>\n</code>, <code>\t</code> e <code>\"</code>. <code>T[0]</code> lê a primeira letra</td></tr>
+<tr><td>booleano</td><td><code>TÁ GRAVADO</code>, <code>NÃO TÁ GRAVADO</code></td><td>Verdadeiro e falso</td></tr>
+<tr><td>lista</td><td><code>[1, 2, 3]</code>, <code>[]</code></td><td><code>L[i]</code> lê ou altera uma posição. Pode misturar tipos</td></tr>
+<tr><td>nada</td><td>(sem literal)</td><td>Valor de uma variável declarada sem valor</td></tr>
+</tbody>
+</table>
+</div>
+<p>A tipagem é dinâmica: a declaração não diz o tipo e uma variável pode receber valores de tipos diferentes. Mesmo assim, a análise semântica descobre o tipo de cada variável pelos valores que ela recebe e já acusa, antes de rodar, as operações em que os tipos não combinam (seção 6). O comando de entrada transforma a resposta em número quando ela parece um número, então <code>"37"</code> vira <code>37</code> e <code>"2,5"</code> vira <code>2.5</code>.</p>
+<p>A linguagem tem algumas funções prontas para conversão: <code>NUMERO(x)</code> e <code>INTEIRO(x)</code> transformam texto em número, <code>TEXTO(x)</code> transforma qualquer valor em texto, <code>TAMANHO(x)</code> devolve o número de letras de um texto ou de itens de uma lista e <code>ALEATORIO(a, b)</code> sorteia um inteiro entre <code>a</code> e <code>b</code>.</p>
+
+<h3>3.5 Exemplo de programa</h3>
+<p>O programa abaixo é o <code>somador.foge</code>, da pasta <code>exemplos</code>. Ele declara uma função, lê dois números, mostra a soma e usa um se/senão.</p>
+<div class="bloco">
+<p class="legenda" id="c-somador">Código 1 – Programa exemplos/somador.foge</p>
+<pre>// O somador da BIRL, agora na Assembleia
+NÃO, EU NUNCA FIZ ISSO SOMAR(A, B)
+    CHEGA DE CORRER A + B;
+FUGIU
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ A, B, RES;
+    TEMOS GRAVADO!("Me passa dois números aí, senhora:");
+    QUER CONVERSAR COMIGO?(A, B);
+    RES = CHAMA A SENHORA SOMAR(A, B);
+    TEMOS GRAVADO!("O resultado é", RES);
+
+    SE A SENHORA NÃO É FUNCIONÁRIA (RES == 37)
+        TEMOS GRAVADO!("37! Tá gravado!");
+    E TÁ CORRENDO POR QUÊ?
+        TEMOS GRAVADO!("Volta aqui, senhora!");
+    FUGIU
+FUGIU</pre>
+</div>
+<p>Rodando o programa traduzido com a entrada 30 e 7:</p>
+<div class="bloco">
+<p class="legenda" id="c-somador-saida">Código 2 – Execução do somador.foge traduzido</p>
+<pre>$ node somador.js &lt; somador.entrada
+Me passa dois números aí, senhora:
+O resultado é 37
+37! Tá gravado!</pre>
+</div>
+
+<h2>4 ANÁLISE LÉXICA</h2>
+<p>O analisador léxico é a função <code>tokenize</code>, no arquivo <code>fogescript.js</code>. Ele lê o código caractere por caractere, da esquerda para a direita, e agrupa os caracteres em tokens. Cada token guarda a categoria, o texto lido, a linha e a coluna em que começa. Espaços, quebras de linha e comentários só servem para separar os tokens e são descartados.</p>
+<h3>4.1 Definição dos tokens</h3>
+<div class="bloco">
+<p class="legenda" id="t-tokens">Tabela 4 – Categorias de tokens</p>
+<table>
+<thead><tr><th>Categoria</th><th>Padrão (expressão regular)</th><th>Exemplos</th></tr></thead>
+<tbody>
+<tr><td>Palavra reservada</td><td>uma das 20 frases da Tabela 1</td><td><code>FUGIU</code>, <code>A SENHORA FEZ</code></td></tr>
+<tr><td>Identificador</td><td><code>[\p{L}_][\p{L}\p{N}_]*</code></td><td><code>salario</code>, <code>dias_uteis</code>, <code>ação</code></td></tr>
+<tr><td>Número</td><td><code>[0-9]+(\.[0-9]+)?</code></td><td><code>37</code>, <code>8800.50</code></td></tr>
+<tr><td>Texto</td><td><code>"([^"\\\n]|\\.)*"</code> ou o mesmo com <code>'</code></td><td><code>"Bom dia!"</code></td></tr>
+<tr><td>Operador</td><td>os operadores da Tabela 2</td><td><code>&lt;=</code>, <code>+=</code></td></tr>
+<tr><td>Delimitador</td><td><code>( ) [ ] , ;</code></td><td><code>(</code>, <code>;</code></td></tr>
+<tr><td>Comentário (descartado)</td><td><code>//[^\n]*</code> e <code>/\*(.|\n)*?\*/</code></td><td><code>// fim de semana</code></td></tr>
+</tbody>
+</table>
+</div>
+<h3>4.2 Regras de reconhecimento</h3>
+<p>Como as palavras reservadas são frases com espaços, o analisador não pode simplesmente ler uma palavra de cada vez. Em cada posição ele testa todas as frases reservadas e fica com a mais longa que casar (regra do maior casamento). Só quando nenhuma frase casa é que ele lê um identificador. Por isso <code>NÃO TÁ GRAVADO</code> vira um único token, o valor falso, e não o identificador <code>NÃO</code> seguido do verdadeiro <code>TÁ GRAVADO</code>.</p>
+<p>Na comparação com as frases, maiúsculas, minúsculas e acentos não fazem diferença (<code>nao ta gravado</code> é o mesmo que <code>NÃO TÁ GRAVADO</code>), e as palavras da frase podem estar separadas por mais de um espaço ou por uma quebra de linha. Uma frase que termina em letra só é aceita se o próximo caractere não continuar o nome, então <code>FUGIU_MESMO</code> é um identificador comum.</p>
+<h3>4.3 Exemplo</h3>
+<p>Para o trecho do Código 3, o analisador produz os tokens da Tabela 5. O comentário não aparece na lista porque é descartado.</p>
+<div class="bloco">
+<p class="legenda" id="c-trecho">Código 3 – Trecho usado no exemplo da análise léxica</p>
+<pre>A SENHORA FEZ salario = 8800.50;  // este comentário é descartado
+SE A SENHORA NÃO É FUNCIONÁRIA (salario &gt;= 1000)</pre>
+</div>
+<div class="bloco">
+<p class="legenda" id="t-tokens-trecho">Tabela 5 – Tokens produzidos pelo analisador léxico para o trecho</p>
+<table>
+<thead><tr><th>Linha:coluna</th><th>Categoria</th><th>Texto lido</th><th>Valor</th></tr></thead>
+<tbody>
+<tr><td>1:1</td><td>palavra reservada</td><td><code>A SENHORA FEZ</code></td><td><code>VAR</code></td></tr>
+<tr><td>1:15</td><td>identificador</td><td><code>salario</code></td><td><code>salario</code></td></tr>
+<tr><td>1:23</td><td>operador</td><td><code>=</code></td><td><code>=</code></td></tr>
+<tr><td>1:25</td><td>número</td><td><code>8800.50</code></td><td><code>8800.5</code></td></tr>
+<tr><td>1:32</td><td>delimitador</td><td><code>;</code></td><td><code>;</code></td></tr>
+<tr><td>2:1</td><td>palavra reservada</td><td><code>SE A SENHORA NÃO É FUNCIONÁRIA</code></td><td><code>IF</code></td></tr>
+<tr><td>2:32</td><td>delimitador</td><td><code>(</code></td><td><code>(</code></td></tr>
+<tr><td>2:33</td><td>identificador</td><td><code>salario</code></td><td><code>salario</code></td></tr>
+<tr><td>2:41</td><td>operador</td><td><code>&gt;=</code></td><td><code>&gt;=</code></td></tr>
+<tr><td>2:44</td><td>número</td><td><code>1000</code></td><td><code>1000</code></td></tr>
+<tr><td>2:48</td><td>delimitador</td><td><code>)</code></td><td><code>)</code></td></tr>
+</tbody>
+</table>
+</div>
+<h3>4.4 Erros léxicos</h3>
+<p>O analisador léxico informa erro quando encontra um símbolo que não faz parte da linguagem (como <code>@</code>, <code>#</code> ou <code>{</code>), um texto sem as aspas de fechamento, um comentário <code>/*</code> sem o <code>*/</code> ou um número grudado em letras, como <code>2dias</code>, que não é número nem nome válido. A mensagem diz a linha e a coluna do erro e mostra a linha do código com uma marca embaixo da posição. O Código 4 mostra a mensagem do tradutor para um dos programas de teste (na seção 9 aparece a saída completa do tradutor, com o resultado de cada etapa).</p>
+<div class="bloco">
+<p class="legenda" id="c-lexico">Código 4 – Erro léxico: símbolo que não pertence à linguagem</p>
+<pre>Erro léxico na linha 6, coluna 30: Símbolo estranho "@": ele não faz parte da linguagem
+  6 |     A SENHORA FEZ total = 10 @ 2;
+    |                              ^</pre>
+</div>
+<p>Os outros dois testes de erro léxico, com texto sem fechar e nome começando com número, estão na pasta <code>testes/erros</code> e aparecem na Tabela 9.</p>
+
+<h2>5 ANÁLISE SINTÁTICA</h2>
+<p>O analisador sintático é a função <code>parse</code>. Ele recebe a lista de tokens e confere se ela segue a gramática da linguagem. Fizemos um analisador descendente recursivo: cada regra da gramática virou uma função, que consome os tokens da regra e chama as funções das regras de dentro. O resultado é uma árvore sintática abstrata (AST), que é usada nas etapas seguintes.</p>
+<h3>5.1 Gramática formal</h3>
+<p>A gramática está em EBNF. Na notação usada, <code>{ x }</code> significa que x se repete zero ou mais vezes, <code>[ x ]</code> que x é opcional e <code>|</code> separa alternativas. Os textos entre aspas são tokens, e <code>IDENT</code>, <code>NUMERO</code> e <code>TEXTO</code> são as categorias de token da seção 4.</p>
+<div class="bloco">
+<p class="legenda" id="c-gramatica">Código 5 – Gramática da FogeScript em EBNF</p>
+<pre>programa    = { funcao | declaracao } , inicio , { funcao | declaracao } ;
+inicio      = "A SENHORA TRABALHA NA ASSEMBLEIA?" , bloco , "FUGIU" ;
+funcao      = "NÃO, EU NUNCA FIZ ISSO" , IDENT ,
+              "(" , [ IDENT , { "," , IDENT } ] , ")" , bloco , "FUGIU" ;
+bloco       = { comando } ;
+
+comando     = declaracao | saida | entrada | se | enquanto | para | parar | pular
+            | retorno | tentativa | lancamento | expressao , [ ";" ] ;
+declaracao  = "A SENHORA FEZ" , item , { "," , item } , [ ";" ] ;
+item        = IDENT , [ "=" , expressao ] ;
+saida       = "TEMOS GRAVADO!" , "(" , [ argumentos ] , ")" , [ ";" ] ;
+entrada     = "QUER CONVERSAR COMIGO?" , "(" , IDENT , { "," , IDENT } , ")" , [ ";" ] ;
+se          = "SE A SENHORA NÃO É FUNCIONÁRIA" , condicao , bloco ,
+              { "ENTÃO A SENHORA É O QUÊ?" , condicao , bloco } ,
+              [ "E TÁ CORRENDO POR QUÊ?" , bloco ] , "FUGIU" ;
+condicao    = "(" , expressao , ")" ;
+enquanto    = "ENQUANTO TIVER CORRENDO" , condicao , bloco , "FUGIU" ;
+para        = "SENHORA? SENHORA?!" , "(" , [ inicio_para ] , ";" , [ expressao ] , ";" ,
+              [ expressao ] , ")" , bloco , "FUGIU" ;
+inicio_para = "A SENHORA FEZ" , item , { "," , item } | expressao ;
+parar       = "VOLTA AQUI!" , [ ";" ] ;
+pular       = "DEIXA ELA CORRER" , [ ";" ] ;
+retorno     = "CHEGA DE CORRER" , [ expressao ] , [ ";" ] ;
+tentativa   = "DEIXA EU TE PERGUNTAR" , bloco ,
+              "A SENHORA TÁ NERVOSA?" , [ "(" , IDENT , ")" ] , bloco , "FUGIU" ;
+lancamento  = "ME DEIXA EM PAZ!" , expressao , [ ";" ] ;
+
+expressao   = ou , [ atribuidor , expressao ] ;
+atribuidor  = "=" | "+=" | "-=" | "*=" | "/=" | "%=" ;
+ou          = e , { "||" , e } ;
+e           = igualdade , { "&amp;&amp;" , igualdade } ;
+igualdade   = comparacao , { ( "==" | "!=" ) , comparacao } ;
+comparacao  = soma , { ( "&lt;" | "&gt;" | "&lt;=" | "&gt;=" ) , soma } ;
+soma        = produto , { ( "+" | "-" ) , produto } ;
+produto     = unario , { ( "*" | "/" | "%" ) , unario } ;
+unario      = ( "!" | "-" | "++" | "--" ) , unario | posfixo ;
+posfixo     = primario , { "[" , expressao , "]" | "++" | "--" } ;
+primario    = NUMERO | TEXTO | "TÁ GRAVADO" | "NÃO TÁ GRAVADO" | chamada | IDENT
+            | "(" , expressao , ")" | "[" , [ argumentos ] , "]" ;
+chamada     = [ "CHAMA A SENHORA" ] , IDENT , "(" , [ argumentos ] , ")" ;
+argumentos  = expressao , { "," , expressao } ;</pre>
+</div>
+<p>A precedência dos operadores sai da própria gramática, porque cada nível chama o nível de precedência maior. Da menor para a maior, a ordem fica: atribuição (associativa à direita), <code>||</code>, <code>&amp;&amp;</code>, <code>==</code> e <code>!=</code>, comparações, <code>+</code> e <code>-</code>, <code>*</code>, <code>/</code> e <code>%</code>, operadores unários e, por último, a posição de lista e o <code>++</code>/<code>--</code> depois do nome. Na regra <code>expressao</code>, o lado esquerdo de uma atribuição precisa ser uma variável ou uma posição de lista. Isso é conferido pelo analisador depois de ler a expressão.</p>
+<h3>5.2 Árvore sintática</h3>
+<p>Para o programa <code>somador.foge</code> do Código 1, o tradutor monta a árvore do Código 6. O tradutor mostra essa árvore quando é chamado com a opção <code>--arvore</code>. O tipo entre ⟨ ⟩ é anotado depois, pela análise semântica.</p>
+<div class="bloco">
+<p class="legenda" id="c-arvore">Código 6 – Árvore sintática do somador.foge</p>
+<pre>Programa
+├── Função SOMAR(A, B)  · linha 2
+│   └── Retorno (CHEGA DE CORRER)  · linha 3
+│       └── Conta +
+│           ├── Variável A
+│           └── Variável B
+└── Assembleia (A SENHORA TRABALHA NA ASSEMBLEIA?)  · linha 6
+    ├── Declaração (A SENHORA FEZ)  · linha 7
+    │   ├── variável A
+    │   ├── variável B
+    │   └── variável RES
+    ├── Saída (TEMOS GRAVADO!)  · linha 8
+    │   └── Texto "Me passa dois números aí, senhora:"
+    ├── Entrada (QUER CONVERSAR COMIGO?) A, B  · linha 9
+    ├── Atribuição =  · linha 10
+    │   ├── Variável RES
+    │   └── Chamada SOMAR(...)
+    │       ├── Variável A
+    │       └── Variável B
+    ├── Saída (TEMOS GRAVADO!)  · linha 11
+    │   ├── Texto "O resultado é"
+    │   └── Variável RES
+    └── Se (SE A SENHORA NÃO É FUNCIONÁRIA)  · linha 13
+        ├── condição
+        │   └── Comparação ==  ⟨booleano⟩
+        │       ├── Variável RES
+        │       └── Número 37
+        ├── então
+        │   └── Saída (TEMOS GRAVADO!)  · linha 14
+        │       └── Texto "37! Tá gravado!"
+        └── senão (E TÁ CORRENDO POR QUÊ?)
+            └── Saída (TEMOS GRAVADO!)  · linha 16
+                └── Texto "Volta aqui, senhora!"</pre>
+</div>
+<h3>5.3 Erros sintáticos</h3>
+<p>O analisador sintático para no primeiro erro e diz o que esperava encontrar. Entre os erros detectados estão bloco sem o <code>FUGIU</code> de fechamento, <code>FUGIU</code> sobrando, parêntese, colchete ou ponto e vírgula faltando, comando incompleto (como <code>A SENHORA FEZ X = ;</code>), senão sem o se, try sem catch, palavra reservada usada como nome, função declarada dentro de outro bloco e código fora da Assembleia.</p>
+<p>Os três testes de erro sintático cobrem os casos pedidos na atividade: estrutura malformada (Código 7), falta de delimitador (Código 8) e comando incompleto (Código 9).</p>
+<div class="bloco">
+<p class="legenda" id="c-sint1">Código 7 – Erro sintático: bloco sem o FUGIU de fechamento</p>
+<pre>Erro sintático na linha 11, coluna 10: Faltou o "FUGIU" para fechar o "A SENHORA TRABALHA NA ASSEMBLEIA?" da linha 5
+  11 |     FUGIU
+     |          ^</pre>
+</div>
+<div class="bloco">
+<p class="legenda" id="c-sint2">Código 8 – Erro sintático: parêntese sem fechar</p>
+<pre>Erro sintático na linha 6, coluna 45: Esperava ")" para fechar a condição, mas veio "TEMOS GRAVADO!"
+  6 |     SE A SENHORA NÃO É FUNCIONÁRIA (20 &gt;= 18
+    |                                             ^</pre>
+</div>
+<div class="bloco">
+<p class="legenda" id="c-sint3">Código 9 – Erro sintático: comando incompleto</p>
+<pre>Erro sintático na linha 5, coluna 29: Esperava um valor, mas veio ";"
+  5 |     A SENHORA FEZ salario = ;
+    |                             ^</pre>
+</div>
+
+<h2>6 ANÁLISE SEMÂNTICA</h2>
+<p>Depois que a árvore é montada, a função <code>analisar</code> percorre a AST e confere se o programa faz sentido: se os nomes usados existem, se as funções são chamadas do jeito certo e se os tipos das contas combinam. Quando há erro, o código não é gerado e todos os erros encontrados são mostrados de uma vez, com linha e coluna.</p>
+<h3>6.1 Escopos e tabela de símbolos</h3>
+<p>Durante a análise é montada uma tabela de símbolos com cada variável, parâmetro e função do programa. As regras de escopo são parecidas com as do JavaScript:</p>
+<ul>
+  <li>as variáveis declaradas fora da Assembleia e das funções são globais;</li>
+  <li>cada função enxerga os seus parâmetros, as suas variáveis e as globais, mas não enxerga as variáveis da Assembleia;</li>
+  <li>cada bloco (se, senão, laços, try e catch) abre um escopo novo, e uma variável declarada dentro dele deixa de existir no <code>FUGIU</code>;</li>
+  <li>uma variável precisa ser declarada antes de ser usada, mas uma função pode ser chamada antes da declaração, o que permite recursão.</li>
+</ul>
+<p>A Tabela 6 mostra a tabela de símbolos do teste <code>03-folha-de-ponto.foge</code> (seção 8.4). Ela é mostrada pelo tradutor com a opção <code>--simbolos</code>.</p>
+<div class="bloco">
+<p class="legenda" id="t-simbolos">Tabela 6 – Tabela de símbolos do teste 03-folha-de-ponto.foge</p>
+<table class="simbolos">
+<thead><tr><th>Nome</th><th>Espécie</th><th>Tipo deduzido</th><th>Escopo</th><th>Linha:coluna</th></tr></thead>
+<tbody>
+<tr><td><code>lista</code></td><td>parâmetro</td><td>desconhecido</td><td>função somar</td><td>6:30</td></tr>
+<tr><td><code>total</code></td><td>variável</td><td>desconhecido</td><td>função somar</td><td>7:19</td></tr>
+<tr><td><code>i</code></td><td>variável</td><td>número</td><td>laço da linha 8</td><td>8:39</td></tr>
+<tr><td><code>media</code></td><td>parâmetro</td><td>desconhecido</td><td>função classificar</td><td>14:36</td></tr>
+<tr><td><code>nome</code></td><td>variável</td><td>desconhecido</td><td>Assembleia</td><td>24:19</td></tr>
+<tr><td><code>dias</code></td><td>variável</td><td>desconhecido</td><td>Assembleia</td><td>24:25</td></tr>
+<tr><td><code>horas</code></td><td>variável</td><td>lista</td><td>Assembleia</td><td>25:19</td></tr>
+<tr><td><code>d</code></td><td>variável</td><td>número</td><td>laço da linha 28</td><td>28:39</td></tr>
+<tr><td><code>h</code></td><td>variável</td><td>desconhecido</td><td>bloco da linha 28</td><td>29:23</td></tr>
+<tr><td><code>total</code></td><td>variável</td><td>desconhecido</td><td>Assembleia</td><td>34:19</td></tr>
+<tr><td><code>media</code></td><td>variável</td><td>número</td><td>Assembleia</td><td>35:19</td></tr>
+</tbody>
+</table>
+</div>
+<h3>6.2 Inferência de tipos</h3>
+<p>Como a declaração não diz o tipo, o analisador descobre o tipo de cada variável olhando todos os valores que ela recebe no programa: o valor inicial, as atribuições, o <code>++</code> e o <code>--</code> e as leituras da entrada. Um tipo pode depender de outro (em <code>X = Y + 1</code>, o tipo de <code>X</code> depende do tipo de <code>Y</code>), então esse cálculo é repetido até nenhum tipo mudar. Se todos os valores de uma variável têm o mesmo tipo, ela fica com esse tipo. Se ela recebe valores de tipos diferentes, vem da entrada ou é parâmetro de função, o tipo fica desconhecido e a conferência é feita quando o programa roda. É por isso que, na Tabela 6, <code>i</code> e <code>d</code> são número, <code>horas</code> é lista e <code>nome</code> é desconhecido.</p>
+<h3>6.3 Verificações</h3>
+<div class="bloco">
+<p class="legenda" id="t-verificacoes">Tabela 7 – Verificações feitas pela análise semântica</p>
+<table>
+<thead><tr><th>Verificação</th><th>Exemplo de mensagem</th></tr></thead>
+<tbody>
+<tr><td>Variável não declarada</td><td>A senhora nunca fez "totl". Declare antes com "A SENHORA FEZ totl". Você quis dizer "total"?</td></tr>
+<tr><td>Variável declarada duas vezes no mesmo bloco</td><td>A senhora já fez "nome" neste bloco (na linha 5). Não dá para declarar de novo</td></tr>
+<tr><td>Função que não existe</td><td>A senhora não conhece a função "SOMRA". [...] Você quis dizer "SOMAR"?</td></tr>
+<tr><td>Chamada com o número errado de valores</td><td>A função "SOMAR" espera 2 valor(es), mas recebeu 1</td></tr>
+<tr><td>Função usada como variável, ou o contrário</td><td>"DOBRO" é uma função, não uma variável. Para chamar, use DOBRO(...)</td></tr>
+<tr><td><code>VOLTA AQUI!</code> ou <code>DEIXA ELA CORRER</code> fora de um laço</td><td>"VOLTA AQUI!" só pode ser usado dentro de um laço</td></tr>
+<tr><td>Conta com tipo inválido</td><td>A conta "*" só funciona com números, e recebeu texto e número</td></tr>
+<tr><td>Comparação entre tipos diferentes</td><td>Não dá para comparar texto com número usando "&lt;"</td></tr>
+<tr><td>Variável sem valor usada numa conta</td><td>Não dá para somar nada com número. A variável "X" foi declarada sem valor e nunca recebeu um</td></tr>
+<tr><td><code>++</code>, <code>--</code> ou <code>-</code> em algo que não é número</td><td>"++" só funciona com número, e a variável tem texto</td></tr>
+<tr><td>Divisão por zero escrita no código</td><td>Divisão por zero! Nem a Assembleia aprova isso</td></tr>
+</tbody>
+</table>
+</div>
+<p>A análise também gera avisos, que não impedem a tradução: variável que recebe valor mas nunca é usada e comparação com <code>==</code> entre tipos diferentes, que sempre dá falso. Os códigos a seguir mostram três dos testes de erro semântico: variável não declarada, tipos incompatíveis e um comando usado onde não pode.</p>
+<div class="bloco">
+<p class="legenda" id="c-sem1">Código 10 – Erro semântico: variável não declarada</p>
+<pre>Erro semântico na linha 9, coluna 20: A senhora nunca fez "totl". Declare antes com "A SENHORA FEZ totl". Você quis dizer "total"?
+  9 |     TEMOS GRAVADO!(totl);
+    |                    ^</pre>
+</div>
+<div class="bloco">
+<p class="legenda" id="c-sem2">Código 11 – Erro semântico: tipos incompatíveis</p>
+<pre>Erro semântico na linha 7, coluna 39: A conta "*" só funciona com números, e recebeu texto e número
+  7 |     TEMOS GRAVADO!("Em dobro:", idade * 2);
+    |                                       ^</pre>
+</div>
+<div class="bloco">
+<p class="legenda" id="c-sem5">Código 12 – Erro semântico: VOLTA AQUI! fora de um laço</p>
+<pre>Erro semântico na linha 7, coluna 9: "VOLTA AQUI!" só pode ser usado dentro de um laço
+  7 |         VOLTA AQUI!;
+    |         ^</pre>
+</div>
+
+<h2>7 GERAÇÃO DE CÓDIGO</h2>
+<p>A última etapa é a função <code>compile</code>, que percorre a AST já conferida e escreve o JavaScript equivalente. A estrutura do programa é mantida: cada comando FogeScript vira o comando correspondente da Tabela 1, os blocos viram chaves e a Assembleia vira uma função <code>assembleia()</code>, chamada no fim do arquivo. A Figura 1 resume o caminho de um programa pelo tradutor.</p>
+<div class="figura">
+<p class="legenda" id="f-etapas">Figura 1 – Etapas do tradutor FogeScript</p>
+<svg viewBox="0 0 600 112" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif" font-size="12" text-anchor="middle">
+  <defs><marker id="seta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#000"/></marker></defs>
+  <g fill="none" stroke="#000" stroke-width="1">
+    <rect x="1" y="22" width="66" height="44" fill="#fff" stroke-dasharray="4 3"/>
+    <rect x="95" y="22" width="92" height="44" fill="#eee"/>
+    <rect x="215" y="22" width="92" height="44" fill="#eee"/>
+    <rect x="335" y="22" width="92" height="44" fill="#eee"/>
+    <rect x="455" y="22" width="92" height="44" fill="#eee"/>
+    <line x1="67" y1="44" x2="93" y2="44" marker-end="url(#seta)"/>
+    <line x1="187" y1="44" x2="213" y2="44" marker-end="url(#seta)"/>
+    <line x1="307" y1="44" x2="333" y2="44" marker-end="url(#seta)"/>
+    <line x1="427" y1="44" x2="453" y2="44" marker-end="url(#seta)"/>
+    <line x1="547" y1="44" x2="573" y2="44" marker-end="url(#seta)"/>
+  </g>
+  <text x="34" y="41">programa</text><text x="34" y="56">.foge</text>
+  <text x="141" y="41" font-weight="bold">Análise</text><text x="141" y="56" font-weight="bold">léxica</text>
+  <text x="261" y="41" font-weight="bold">Análise</text><text x="261" y="56" font-weight="bold">sintática</text>
+  <text x="381" y="41" font-weight="bold">Análise</text><text x="381" y="56" font-weight="bold">semântica</text>
+  <text x="501" y="41" font-weight="bold">Geração</text><text x="501" y="56" font-weight="bold">de código</text>
+  <text x="587" y="48" font-size="11">.js</text>
+  <g font-size="10.5" fill="#333">
+    <text x="141" y="14">tokenize</text><text x="261" y="14">parse</text><text x="381" y="14">analisar</text><text x="501" y="14">compile</text>
+    <text x="141" y="84">lista de tokens</text><text x="261" y="84">AST</text><text x="381" y="84">AST com tipos</text><text x="501" y="84">programa .js</text>
+    <text x="141" y="99">erro léxico</text><text x="261" y="99">erro sintático</text><text x="381" y="99">erro semântico</text><text x="501" y="99">(runtime + programa)</text>
+  </g>
+</svg>
+<p class="legenda" style="margin-top:4pt">Acima de cada etapa está a função do <code>fogescript.js</code> que a implementa. Embaixo, o que ela produz e o tipo de erro que ela pode acusar.</p>
+</div>
+<p>O gerador usa os tipos da análise semântica para decidir como escrever cada conta. Quando os dois lados com certeza são números (ou textos), a conta vira o operador do próprio JavaScript, como <code>N % 15 === 0</code>. Quando o tipo só é conhecido na hora de rodar, por exemplo um valor lido da entrada, a conta vira uma chamada ao runtime, como <code>foge.conta("&gt;", palpite, DIAS_TRABALHADOS, 21)</code>. Essa função confere os tipos e, se der erro, avisa a linha do programa FogeScript, que é o último número da chamada.</p>
+<p>O runtime é um conjunto pequeno de funções de apoio, parecido com uma biblioteca padrão: <code>foge.gravar</code> (saída), <code>foge.ler</code> (entrada), <code>foge.conta</code> (contas), <code>foge.item</code> e <code>foge.guardar</code> (listas), <code>foge.chamar</code> (chamadas de função), <code>foge.lancar</code> e <code>foge.capturar</code> (erros) e <code>foge.passo</code>, que interrompe um laço infinito depois de 5 milhões de voltas. O arquivo <code>.js</code> gerado traz o runtime junto com o programa traduzido, então ele roda sozinho com <code>node programa.js</code>, sem precisar do FogeScript.</p>
+<p>O site também tem um interpretador, que executa a AST direto, sem gerar JavaScript. Ele usa as mesmas funções do runtime, e os testes conferem se os dois modos dão a mesma saída.</p>
+<p>O código traduzido do teste <code>02-adivinhacao.foge</code>, na seção 8.3, mostra os dois casos. A comparação <code>tentativas &lt; MAX_TENTATIVAS</code> virou o operador do JavaScript, porque as duas variáveis são números, enquanto <code>palpite &gt; DIAS_TRABALHADOS</code> virou <code>foge.conta</code>, porque <code>palpite</code> vem da entrada e pode ser texto.</p>
+
+<h2>8 TESTES E EVIDÊNCIAS DE FUNCIONAMENTO</h2>
+<h3>8.1 Programas de teste</h3>
+<p>Os programas de teste ficam na pasta <code>testes</code>. São 5 programas válidos, em <code>testes/validos</code>, e 12 programas com erro, em <code>testes/erros</code>. Cada programa válido tem um arquivo <code>.saida</code> com a saída esperada, que escrevemos à mão, e um arquivo <code>.entrada</code> quando o programa lê dados. Cada programa com erro diz na primeira linha qual erro deve aparecer, por exemplo <code>// ESPERADO: erro sintático na linha 6, coluna 45</code>.</p>
+<div class="bloco">
+<p class="legenda" id="t-validos">Tabela 8 – Programas de teste válidos (pasta testes/validos)</p>
+<table class="testes-validos">
+<thead><tr><th>Arquivo</th><th>O que testa</th></tr></thead>
+<tbody>
+<tr><td><code>01-tipos-e-operadores.foge</code></td><td>Tipos de dados, as quatro operações, resto, comparações, lógica e comentários</td></tr>
+<tr><td><code>02-adivinhacao.foge</code></td><td>Entrada de dados, decisões (se, senão se, senão) e repetição (enquanto)</td></tr>
+<tr><td><code>03-folha-de-ponto.foge</code></td><td>Funções, listas, laço para e entrada de dados</td></tr>
+<tr><td><code>04-recursao-e-escopo.foge</code></td><td>Recursão, variável global e escopo de bloco</td></tr>
+<tr><td><code>05-tratamento-de-erros.foge</code></td><td>Try/catch e throw com erros na hora de rodar</td></tr>
+</tbody>
+</table>
+</div>
+<div class="bloco">
+<p class="legenda" id="t-testes">Tabela 9 – Programas de teste com erro (pasta testes/erros)</p>
+<table class="testes">
+<thead><tr><th>Arquivo</th><th>O que tem de errado</th><th>Erro esperado (etapa, linha:coluna)</th></tr></thead>
+<tbody>
+<tr><td><code>lexico-1-simbolo-estranho.foge</code></td><td>Símbolo <code>@</code>, que não é da linguagem</td><td>léxico, 6:30</td></tr>
+<tr><td><code>lexico-2-texto-sem-fechar.foge</code></td><td>Texto sem as aspas de fechamento</td><td>léxico, 5:20</td></tr>
+<tr><td><code>lexico-3-nome-com-numero.foge</code></td><td>Nome começando com número</td><td>léxico, 5:19</td></tr>
+<tr><td><code>sintatico-1-faltou-fugiu.foge</code></td><td>Bloco sem o <code>FUGIU</code></td><td>sintático, 11:10</td></tr>
+<tr><td><code>sintatico-2-faltou-parentese.foge</code></td><td>Condição sem o <code>)</code></td><td>sintático, 6:45</td></tr>
+<tr><td><code>sintatico-3-comando-incompleto.foge</code></td><td>Atribuição sem valor</td><td>sintático, 5:29</td></tr>
+<tr><td><code>semantico-1-variavel-nao-declarada.foge</code></td><td>Variável não declarada</td><td>semântico, 9:20</td></tr>
+<tr><td><code>semantico-2-tipos-incompativeis.foge</code></td><td>Texto vezes número</td><td>semântico, 7:39</td></tr>
+<tr><td><code>semantico-3-funcao-errada.foge</code></td><td>Função com um valor a menos</td><td>semântico, 10:20</td></tr>
+<tr><td><code>semantico-4-declarada-duas-vezes.foge</code></td><td>Variável declarada duas vezes</td><td>semântico, 6:19</td></tr>
+<tr><td><code>semantico-5-volta-aqui-fora-do-laco.foge</code></td><td><code>VOLTA AQUI!</code> fora de laço</td><td>semântico, 7:9</td></tr>
+<tr><td><code>execucao-1-divisao-por-zero.foge</code></td><td>Divisão por zero vinda da entrada</td><td>execução, linha 10</td></tr>
+</tbody>
+</table>
+</div>
+<h3>8.2 Execução dos testes</h3>
+<p>O script <code>testes/rodar-testes.js</code> roda todos os testes de uma vez. Cada programa válido é executado de três formas: pelo interpretador, pelo JavaScript gerado rodando dentro do próprio tradutor e pelo arquivo <code>.js</code> gerado rodando no Node. As três saídas precisam ser iguais à saída esperada. Nos programas com erro, o script confere se o erro saiu na etapa, na linha e na coluna esperadas. Ele também roda os 7 exemplos do site e confere se os três modos dão a mesma saída.</p>
+<p>As evidências de cada teste (código original, entrada, código traduzido e resultado) ficam gravadas na pasta <code>testes/resultados</code>. O Código 13 é o resultado da última execução do script.</p>
+<div class="bloco">
+<p class="legenda" id="c-resumo">Código 13 – Saída de node testes/rodar-testes.js (arquivo testes/resultados/resumo.txt)</p>
+<pre>FogeScript 1.2.0: resultado dos testes
+
+Programas válidos:  5/5
+Programas com erro: 12/12
+Exemplos do site:   7/7
+
+ok     validos   01-tipos-e-operadores  (saída igual à esperada)
+ok     validos   02-adivinhacao  (saída igual à esperada)
+ok     validos   03-folha-de-ponto  (saída igual à esperada)
+ok     validos   04-recursao-e-escopo  (saída igual à esperada)
+ok     validos   05-tratamento-de-erros  (saída igual à esperada)
+ok     erros     execucao-1-divisao-por-zero  (de execução, linha 10)
+ok     erros     lexico-1-simbolo-estranho  (léxico, linha 6, coluna 30)
+ok     erros     lexico-2-texto-sem-fechar  (léxico, linha 5, coluna 20)
+ok     erros     lexico-3-nome-com-numero  (léxico, linha 5, coluna 19)
+ok     erros     semantico-1-variavel-nao-declarada  (semântico, linha 9, coluna 20)
+ok     erros     semantico-2-tipos-incompativeis  (semântico, linha 7, coluna 39)
+ok     erros     semantico-3-funcao-errada  (semântico, linha 10, coluna 20)
+ok     erros     semantico-4-declarada-duas-vezes  (semântico, linha 6, coluna 19)
+ok     erros     semantico-5-volta-aqui-fora-do-laco  (semântico, linha 7, coluna 9)
+ok     erros     sintatico-1-faltou-fugiu  (sintático, linha 11, coluna 10)
+ok     erros     sintatico-2-faltou-parentese  (sintático, linha 6, coluna 45)
+ok     erros     sintatico-3-comando-incompleto  (sintático, linha 5, coluna 29)
+ok     exemplos  erros  (os três jeitos de rodar deram a mesma saída)
+ok     exemplos  fatorial  (os três jeitos de rodar deram a mesma saída)
+ok     exemplos  fizzbuzz  (os três jeitos de rodar deram a mesma saída)
+ok     exemplos  flagrante  (os três jeitos de rodar deram a mesma saída)
+ok     exemplos  listas  (os três jeitos de rodar deram a mesma saída)
+ok     exemplos  ola  (os três jeitos de rodar deram a mesma saída)
+ok     exemplos  somador  (os três jeitos de rodar deram a mesma saída)
+
+Todos os testes passaram.</pre>
+</div>
+
+<h3>8.3 Evidência 1: entrada de dados, decisões e repetição</h3>
+<p>O teste <code>02-adivinhacao.foge</code> é o programa com entrada de dados, decisões e repetição pedido na atividade. O programa tenta adivinhar quantos dias a senhora trabalhou no mês: cada linha da entrada é um palpite, e o laço para quando o palpite está certo ou quando acabam as tentativas.</p>
+<div class="bloco">
+<p class="legenda" id="c-ev1">Código 14 – Código original: testes/validos/02-adivinhacao.foge</p>
+<pre>/*
+    Teste 2: entrada de dados, decisões e repetição.
+    A repórter tenta adivinhar quantos dias a senhora trabalhou no mês.
+    Cada linha da Entrada é um palpite. O laço para quando ela acerta
+    ou quando acabam as tentativas.
+*/
+A SENHORA FEZ DIAS_TRABALHADOS = 3;    // o segredo
+A SENHORA FEZ MAX_TENTATIVAS = 5;
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ palpite;
+    A SENHORA FEZ tentativas = 0;
+    A SENHORA FEZ acertou = NÃO TÁ GRAVADO;
+
+    TEMOS GRAVADO!("Repórter: Quantos dias a senhora trabalhou este mês?");
+    ENQUANTO TIVER CORRENDO (!acertou &amp;&amp; tentativas &lt; MAX_TENTATIVAS)
+        QUER CONVERSAR COMIGO?(palpite);
+        tentativas++;
+        SE A SENHORA NÃO É FUNCIONÁRIA (palpite == DIAS_TRABALHADOS)
+            acertou = TÁ GRAVADO;
+        ENTÃO A SENHORA É O QUÊ? (palpite &gt; DIAS_TRABALHADOS)
+            TEMOS GRAVADO!(palpite, "dias? Menos, senhora, menos.");
+        E TÁ CORRENDO POR QUÊ?
+            TEMOS GRAVADO!(palpite, "dias? Mais que isso!");
+        FUGIU
+    FUGIU
+
+    SE A SENHORA NÃO É FUNCIONÁRIA (acertou)
+        TEMOS GRAVADO!("TEMOS GRAVADO! Foram", DIAS_TRABALHADOS, "dias. Acertou em", tentativas, "tentativa(s).");
+    E TÁ CORRENDO POR QUÊ?
+        TEMOS GRAVADO!("Ela fugiu antes de responder.");
+    FUGIU
+FUGIU</pre>
+</div>
+<div class="bloco">
+<p class="legenda" id="c-ev1-js">Código 15 – Código traduzido para JavaScript (sem o runtime)</p>
+<pre>'use strict';
+// Programa FogeScript traduzido para JavaScript (tradutor 1.2.0).
+// Contas com tipos garantidos pela análise semântica usam os operadores do JavaScript.
+// As outras chamam o runtime (foge.*), que confere os tipos na hora de rodar.
+// O último número de cada chamada foge.* é a linha do código FogeScript.
+
+// Variáveis globais
+let DIAS_TRABALHADOS = 3;
+let MAX_TENTATIVAS = 5;
+
+// A SENHORA TRABALHA NA ASSEMBLEIA?
+function assembleia() {
+  let palpite;
+  let tentativas = 0;
+  let acertou = false;
+  foge.gravar("Repórter: Quantos dias a senhora trabalhou este mês?");
+  while (!acertou &amp;&amp; tentativas &lt; MAX_TENTATIVAS) {
+    foge.passo(16);
+    palpite = foge.ler(17);
+    tentativas++;
+    if (palpite === DIAS_TRABALHADOS) {
+      acertou = true;
+    } else if (foge.conta("&gt;", palpite, DIAS_TRABALHADOS, 21)) {
+      foge.gravar(palpite, "dias? Menos, senhora, menos.");
+    } else {
+      foge.gravar(palpite, "dias? Mais que isso!");
+    }
+  }
+  if (acertou) {
+    foge.gravar("TEMOS GRAVADO! Foram", DIAS_TRABALHADOS, "dias. Acertou em", tentativas, "tentativa(s).");
+  } else {
+    foge.gravar("Ela fugiu antes de responder.");
+  }
+}
+assembleia();</pre>
+</div>
+<p>Resultado da execução do arquivo gerado, com a entrada 10, 1, 5 e 3 (um palpite por linha):</p>
+<div class="bloco">
+<p class="legenda" id="c-ev1-saida">Código 16 – Resultado da execução</p>
+<pre>$ node 02-adivinhacao.js &lt; 02-adivinhacao.entrada
+Repórter: Quantos dias a senhora trabalhou este mês?
+10 dias? Menos, senhora, menos.
+1 dias? Mais que isso!
+5 dias? Menos, senhora, menos.
+TEMOS GRAVADO! Foram 3 dias. Acertou em 4 tentativa(s).</pre>
+</div>
+
+<h3>8.4 Evidência 2: funções, listas e laço para</h3>
+<p>O teste <code>03-folha-de-ponto.foge</code> lê o nome de uma funcionária, quantos dias ela trabalhou e as horas de cada dia. Depois calcula o total e a média com uma função e classifica a funcionária com outra.</p>
+<div class="bloco">
+<p class="legenda" id="c-ev2">Código 17 – Código original: testes/validos/03-folha-de-ponto.foge</p>
+<pre>/*
+    Teste 3: funções, listas, laço SENHORA? SENHORA?! (for) e decisões encadeadas.
+    Entrada: o nome da funcionária, quantos dias ela trabalhou e,
+    depois, as horas de cada dia (uma resposta por linha).
+*/
+NÃO, EU NUNCA FIZ ISSO somar(lista)
+    A SENHORA FEZ total = 0;
+    SENHORA? SENHORA?! (A SENHORA FEZ i = 0; i &lt; TAMANHO(lista); i++)
+        total += lista[i];
+    FUGIU
+    CHEGA DE CORRER total;
+FUGIU
+
+NÃO, EU NUNCA FIZ ISSO classificar(media)
+    SE A SENHORA NÃO É FUNCIONÁRIA (media &gt;= 8)
+        CHEGA DE CORRER "funcionária exemplar";
+    ENTÃO A SENHORA É O QUÊ? (media &gt;= 4)
+        CHEGA DE CORRER "meio expediente";
+    FUGIU
+    CHEGA DE CORRER "funcionária fantasma";
+FUGIU
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ nome, dias;
+    A SENHORA FEZ horas = [];
+
+    QUER CONVERSAR COMIGO?(nome, dias);
+    SENHORA? SENHORA?! (A SENHORA FEZ d = 1; d &lt;= dias; d++)
+        A SENHORA FEZ h;
+        QUER CONVERSAR COMIGO?(h);
+        horas[TAMANHO(horas)] = h;
+    FUGIU
+
+    A SENHORA FEZ total = somar(horas);
+    A SENHORA FEZ media = total / TAMANHO(horas);
+    TEMOS GRAVADO!("Funcionária:", nome);
+    TEMOS GRAVADO!("Horas por dia:", horas);
+    TEMOS GRAVADO!("Total:", total, "horas | Média:", media);
+    TEMOS GRAVADO!("Veredito:", classificar(media));
+FUGIU</pre>
+</div>
+<div class="bloco">
+<p class="legenda" id="c-ev2-js">Código 18 – Código traduzido para JavaScript (sem o runtime)</p>
+<pre>'use strict';
+// Programa FogeScript traduzido para JavaScript (tradutor 1.2.0).
+// Contas com tipos garantidos pela análise semântica usam os operadores do JavaScript.
+// As outras chamam o runtime (foge.*), que confere os tipos na hora de rodar.
+// O último número de cada chamada foge.* é a linha do código FogeScript.
+
+// Funções (NÃO, EU NUNCA FIZ ISSO)
+function somar(lista) {
+  let total = 0;
+  for (let i = 0; i &lt; foge.chamar("TAMANHO", [lista], 8); i++) {
+    foge.passo(8);
+    total = foge.acumular("+=", foge.item(lista, i, 9), total, 9);
+  }
+  return total;
+}
+foge.funcao("somar", somar);
+
+function classificar(media) {
+  if (foge.conta("&gt;=", media, 8, 15)) {
+    return "funcionária exemplar";
+  } else if (foge.conta("&gt;=", media, 4, 17)) {
+    return "meio expediente";
+  }
+  return "funcionária fantasma";
+}
+foge.funcao("classificar", classificar);
+
+// A SENHORA TRABALHA NA ASSEMBLEIA?
+function assembleia() {
+  let nome;
+  let dias;
+  let horas = [];
+  nome = foge.ler(27);
+  dias = foge.ler(27);
+  for (let d = 1; foge.conta("&lt;=", d, dias, 28); d++) {
+    foge.passo(28);
+    let h;
+    h = foge.ler(30);
+    foge.guardar(h, foge.lista(horas, 31), foge.chamar("TAMANHO", [horas], 31), 31);
+  }
+  let total = foge.chamar("somar", [horas], 34);
+  let media = foge.conta("/", total, foge.chamar("TAMANHO", [horas], 35), 35);
+  foge.gravar("Funcionária:", nome);
+  foge.gravar("Horas por dia:", horas);
+  foge.gravar("Total:", total, "horas | Média:", media);
+  foge.gravar("Veredito:", foge.chamar("classificar", [media], 39));
+}
+assembleia();</pre>
+</div>
+<p>Resultado da execução com a entrada Dona Cida, 4, 6, 8, 3 e 5:</p>
+<div class="bloco">
+<p class="legenda" id="c-ev2-saida">Código 19 – Resultado da execução</p>
+<pre>$ node 03-folha-de-ponto.js &lt; 03-folha-de-ponto.entrada
+Funcionária: Dona Cida
+Horas por dia: [6, 8, 3, 5]
+Total: 22 horas | Média: 5.5
+Veredito: meio expediente</pre>
+</div>
+
+<h3>8.5 Evidência 3: erro na hora de rodar</h3>
+<p>O teste <code>execucao-1-divisao-por-zero.foge</code> não tem erro de escrita, então passa pelas três análises e é traduzido. O erro só aparece quando ele roda com a entrada 10 e 0, porque a divisão por zero depende do valor digitado. O programa para e mostra a linha do código FogeScript onde o erro aconteceu.</p>
+<div class="bloco">
+<p class="legenda" id="c-ev3">Código 20 – Tradução e execução do teste execucao-1-divisao-por-zero.foge</p>
+<pre>$ node tradutor.js testes/erros/execucao-1-divisao-por-zero.foge --rodar &lt; testes/erros/execucao-1-divisao-por-zero.entrada
+FogeScript 1.2.0 · tradutor para JavaScript
+Arquivo: testes/erros/execucao-1-divisao-por-zero.foge
+
+  1. Análise léxica...... ok   34 tokens
+  2. Análise sintática... ok   árvore com 13 nós
+  3. Análise semântica... ok   2 nomes, 0 funções, 0 avisos
+  4. Geração de código... ok   testes/erros/execucao-1-divisao-por-zero.js
+
+Rodando: node testes/erros/execucao-1-divisao-por-zero.js
+
+Dividindo 10 por 0
+
+Erro de execução na linha 10: Divisão por zero! Nem a Assembleia aprova isso</pre>
+</div>
+<p>Os outros três testes válidos (<code>01</code>, <code>04</code> e <code>05</code>) e os testes de erro que não aparecem neste documento também têm as evidências gravadas na pasta <code>testes/resultados</code>.</p>
+
+<h2>9 COMO COMPILAR E EXECUTAR</h2>
+<p>O tradutor não precisa ser compilado, porque é escrito em JavaScript. Para usar pela linha de comando é preciso ter o Node.js instalado (versão 18 ou mais nova). Depois de baixar o projeto do GitHub, os comandos da Tabela 10 são executados dentro da pasta do projeto.</p>
+<div class="bloco">
+<p class="legenda" id="t-comandos-cli">Tabela 10 – Comandos do tradutor</p>
+<table class="cli">
+<thead><tr><th>Comando</th><th>O que faz</th></tr></thead>
+<tbody>
+<tr><td><code>node tradutor.js programa.foge</code></td><td>Traduz o programa e grava <code>programa.js</code></td></tr>
+<tr><td><code>node programa.js</code></td><td>Roda o programa traduzido, lendo a entrada do teclado</td></tr>
+<tr><td><code>node programa.js &lt; entrada.txt</code></td><td>Roda o programa lendo a entrada de um arquivo</td></tr>
+<tr><td><code>node tradutor.js programa.foge --rodar</code></td><td>Traduz e já roda o programa</td></tr>
+<tr><td><code>node tradutor.js programa.foge --tokens</code></td><td>Mostra os tokens (análise léxica)</td></tr>
+<tr><td><code>node tradutor.js programa.foge --arvore</code></td><td>Mostra a árvore sintática</td></tr>
+<tr><td><code>node tradutor.js programa.foge --simbolos</code></td><td>Mostra a tabela de símbolos</td></tr>
+<tr><td><code>node tradutor.js programa.foge -o saida.js</code></td><td>Escolhe o nome do arquivo gerado</td></tr>
+<tr><td><code>node testes/rodar-testes.js</code></td><td>Roda todos os testes e grava as evidências</td></tr>
+</tbody>
+</table>
+</div>
+<p>No PowerShell do Windows o símbolo <code>&lt;</code> não funciona. Nesse caso, a entrada pode ser passada com <code>Get-Content entrada.txt | node programa.js</code>.</p>
+<p>O Código 21 mostra a saída do tradutor para o <code>somador.foge</code>. Primeiro aparece o resultado de cada etapa e, no fim, o nome do arquivo gerado.</p>
+<div class="bloco">
+<p class="legenda" id="c-cli">Código 21 – Saída do tradutor para um programa sem erros</p>
+<pre>$ node tradutor.js exemplos/somador.foge
+FogeScript 1.2.0 · tradutor para JavaScript
+Arquivo: exemplos/somador.foge
+
+  1. Análise léxica...... ok   69 tokens
+  2. Análise sintática... ok   árvore com 27 nós
+  3. Análise semântica... ok   5 nomes, 1 função, 0 avisos
+  4. Geração de código... ok   exemplos/somador.js
+
+Para rodar: node exemplos/somador.js</pre>
+</div>
+<p>Para usar sem instalar nada, basta abrir o site https://fogescript.vercel.app. Ele tem um editor com os exemplos e os programas de teste, e o botão Compilar mostra as quatro etapas da tradução em abas (tokens, árvore, análise semântica e JavaScript gerado), além de permitir baixar o arquivo <code>.js</code>. A Tabela 11 mostra a organização do projeto.</p>
+<div class="bloco">
+<p class="legenda" id="t-arquivos">Tabela 11 – Arquivos do projeto</p>
+<table class="arquivos">
+<thead><tr><th>Arquivo ou pasta</th><th>Conteúdo</th></tr></thead>
+<tbody>
+<tr><td><code>fogescript.js</code></td><td>O tradutor: análise léxica (<code>tokenize</code>), sintática (<code>parse</code>), semântica (<code>analisar</code>), geração de código (<code>compile</code>), runtime e interpretador</td></tr>
+<tr><td><code>tradutor.js</code></td><td>Programa de linha de comando que usa o <code>fogescript.js</code></td></tr>
+<tr><td><code>index.html</code></td><td>Site com o editor, as etapas da tradução em abas, o dicionário e o tutorial</td></tr>
+<tr><td><code>exemplos/</code></td><td>Programas de exemplo usados no site</td></tr>
+<tr><td><code>testes/</code></td><td>Programas válidos e com erro, o script de testes e as evidências (<code>testes/resultados</code>)</td></tr>
+<tr><td><code>docs/</code></td><td>Este documento</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>10 CONSIDERAÇÕES FINAIS</h2>
+<p>Com o trabalho, conseguimos aplicar na prática as etapas de um compilador vistas na disciplina. O tradutor não faz uma simples troca de palavras: o código passa pela análise léxica, pela análise sintática, que monta a árvore, e pela análise semântica, que confere nomes e tipos, e só então o JavaScript é gerado a partir da árvore.</p>
+<p>A principal particularidade da FogeScript ficou na análise léxica. Como as palavras reservadas são frases com espaços, pontuação e acentos, não dava para separar os tokens só pelos espaços, e foi preciso usar a regra do maior casamento. Na análise semântica, a falta de tipo na declaração fez com que o tipo de cada variável tivesse que ser deduzido pelos valores que ela recebe.</p>
+<p>Como melhorias futuras, a linguagem poderia ter declaração de tipo opcional, mais funções prontas e geração de código para outras linguagens, como C ou Python, aproveitando a mesma árvore sintática.</p>
+
+<h2>REFERÊNCIAS</h2>
+<div class="referencias">
+<p>BIRL: BAMBAM'S "IT'S SHOW TIME" RECURSIVE LANGUAGE. <b>Repositório da linguagem BIRL</b>. Disponível em: https://github.com/birl-language/birl. Acesso em: 4 nov. 2026.</p>
+<p>INTERNATIONAL ORGANIZATION FOR STANDARDIZATION. <b>ISO/IEC 14977</b>: Information technology: Syntactic metalanguage: Extended BNF. Genebra: ISO, 1996.</p>
+<p>NODE.JS. <b>Node.js documentation</b>. Disponível em: https://nodejs.org/docs. Acesso em: 4 nov. 2026.</p>
+</div>
+
+</body>
+</html>

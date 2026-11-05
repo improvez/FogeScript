@@ -1,0 +1,89 @@
+=== Código FogeScript (testes/validos/02-adivinhacao.foge) ================
+/*
+    Teste 2: entrada de dados, decisões e repetição.
+    A repórter tenta adivinhar quantos dias a senhora trabalhou no mês.
+    Cada linha da Entrada é um palpite. O laço para quando ela acerta
+    ou quando acabam as tentativas.
+*/
+A SENHORA FEZ DIAS_TRABALHADOS = 3;    // o segredo
+A SENHORA FEZ MAX_TENTATIVAS = 5;
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ palpite;
+    A SENHORA FEZ tentativas = 0;
+    A SENHORA FEZ acertou = NÃO TÁ GRAVADO;
+
+    TEMOS GRAVADO!("Repórter: Quantos dias a senhora trabalhou este mês?");
+    ENQUANTO TIVER CORRENDO (!acertou && tentativas < MAX_TENTATIVAS)
+        QUER CONVERSAR COMIGO?(palpite);
+        tentativas++;
+        SE A SENHORA NÃO É FUNCIONÁRIA (palpite == DIAS_TRABALHADOS)
+            acertou = TÁ GRAVADO;
+        ENTÃO A SENHORA É O QUÊ? (palpite > DIAS_TRABALHADOS)
+            TEMOS GRAVADO!(palpite, "dias? Menos, senhora, menos.");
+        E TÁ CORRENDO POR QUÊ?
+            TEMOS GRAVADO!(palpite, "dias? Mais que isso!");
+        FUGIU
+    FUGIU
+
+    SE A SENHORA NÃO É FUNCIONÁRIA (acertou)
+        TEMOS GRAVADO!("TEMOS GRAVADO! Foram", DIAS_TRABALHADOS, "dias. Acertou em", tentativas, "tentativa(s).");
+    E TÁ CORRENDO POR QUÊ?
+        TEMOS GRAVADO!("Ela fugiu antes de responder.");
+    FUGIU
+FUGIU
+
+=== Entrada ===============================================================
+10
+1
+5
+3
+
+=== JavaScript gerado: node tradutor.js testes/validos/02-adivinhacao.foge ===
+// O arquivo completo é testes/resultados/02-adivinhacao.js: este programa mais o runtime (funções foge.*).
+
+'use strict';
+// Programa FogeScript traduzido para JavaScript (tradutor 1.2.0).
+// Contas com tipos garantidos pela análise semântica usam os operadores do JavaScript.
+// As outras chamam o runtime (foge.*), que confere os tipos na hora de rodar.
+// O último número de cada chamada foge.* é a linha do código FogeScript.
+
+// Variáveis globais
+let DIAS_TRABALHADOS = 3;
+let MAX_TENTATIVAS = 5;
+
+// A SENHORA TRABALHA NA ASSEMBLEIA?
+function assembleia() {
+  let palpite;
+  let tentativas = 0;
+  let acertou = false;
+  foge.gravar("Repórter: Quantos dias a senhora trabalhou este mês?");
+  while (!acertou && tentativas < MAX_TENTATIVAS) {
+    foge.passo(16);
+    palpite = foge.ler(17);
+    tentativas++;
+    if (palpite === DIAS_TRABALHADOS) {
+      acertou = true;
+    } else if (foge.conta(">", palpite, DIAS_TRABALHADOS, 21)) {
+      foge.gravar(palpite, "dias? Menos, senhora, menos.");
+    } else {
+      foge.gravar(palpite, "dias? Mais que isso!");
+    }
+  }
+  if (acertou) {
+    foge.gravar("TEMOS GRAVADO! Foram", DIAS_TRABALHADOS, "dias. Acertou em", tentativas, "tentativa(s).");
+  } else {
+    foge.gravar("Ela fugiu antes de responder.");
+  }
+}
+assembleia();
+
+=== Saída de: node testes/resultados/02-adivinhacao.js ====================
+Repórter: Quantos dias a senhora trabalhou este mês?
+10 dias? Menos, senhora, menos.
+1 dias? Mais que isso!
+5 dias? Menos, senhora, menos.
+TEMOS GRAVADO! Foram 3 dias. Acertou em 4 tentativa(s).
+
+=== Conferência ===========================================================
+igual à saída esperada nos três jeitos de rodar (interpretador, site e Node)

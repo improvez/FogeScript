@@ -1,0 +1,13 @@
+=== Código FogeScript (testes/erros/lexico-3-nome-com-numero.foge) ========
+// ESPERADO: erro léxico na linha 5, coluna 19
+// Erro léxico: um nome de variável não pode começar com número.
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ 2dias = 3;
+    TEMOS GRAVADO!(2dias);
+FUGIU
+
+=== Resultado de: node tradutor.js testes/erros/lexico-3-nome-com-numero.foge ===
+Erro léxico na linha 5, coluna 19: "2dias" não é número nem nome: um nome não pode começar com número
+  5 |     A SENHORA FEZ 2dias = 3;
+    |                   ^

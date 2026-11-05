@@ -1,0 +1,47 @@
+/*
+    Teste 1: tipos de dados, operadores e comentários.
+    Usa número inteiro, número com casas decimais, texto, booleano e lista,
+    as quatro operações, o resto da divisão, as comparações e a lógica.
+*/
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    // tipos
+    A SENHORA FEZ dias = 22;                              // número inteiro
+    A SENHORA FEZ salario = 8800.50;                      // número com casas decimais
+    A SENHORA FEZ nome = "Dona Cida";                     // texto
+    A SENHORA FEZ correu = TÁ GRAVADO;                    // booleano
+    A SENHORA FEZ provas = ["vídeo", "foto", "ponto"];    // lista
+
+    TEMOS GRAVADO!("Nome:", nome, "| dias:", dias, "| salário:", salario);
+    TEMOS GRAVADO!("Correu?", correu, "| provas:", provas, "| quantas:", TAMANHO(provas));
+
+    // contas
+    TEMOS GRAVADO!("10 + 3 =", 10 + 3);
+    TEMOS GRAVADO!("10 - 3 =", 10 - 3);
+    TEMOS GRAVADO!("10 * 3 =", 10 * 3);
+    TEMOS GRAVADO!("10 / 4 =", 10 / 4);
+    TEMOS GRAVADO!("10 % 3 =", 10 % 3);
+    TEMOS GRAVADO!("2 + 3 * 4 =", 2 + 3 * 4, "| (2 + 3) * 4 =", (2 + 3) * 4);
+    TEMOS GRAVADO!("Por dia:", INTEIRO(salario / dias));
+
+    // comparações
+    TEMOS GRAVADO!("5 == 5:", 5 == 5, "| 5 != 5:", 5 != 5);
+    TEMOS GRAVADO!("3 < 7:", 3 < 7, "| 3 > 7:", 3 > 7);
+    TEMOS GRAVADO!("7 <= 7:", 7 <= 7, "| 8 >= 9:", 8 >= 9);
+    TEMOS GRAVADO!("\"ana\" < \"beto\":", "ana" < "beto");
+
+    // lógica
+    TEMOS GRAVADO!("e:", correu && dias > 20, "| ou:", NÃO TÁ GRAVADO || correu, "| não:", !correu);
+
+    // textos
+    A SENHORA FEZ frase = "A senhora " + "trabalha " + "na Assembleia?";
+    TEMOS GRAVADO!(frase, "(" + TEXTO(TAMANHO(frase)) + " letras)");
+    TEMOS GRAVADO!("Primeira letra:", nome[0]);
+
+    // atalhos
+    A SENHORA FEZ x = 10;
+    x += 5;
+    x -= 3;
+    x *= 2;
+    x++;
+    TEMOS GRAVADO!("x =", x);
+FUGIU

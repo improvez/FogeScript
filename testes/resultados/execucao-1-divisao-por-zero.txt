@@ -1,0 +1,42 @@
+=== Código FogeScript (testes/erros/execucao-1-divisao-por-zero.foge) =====
+// ESPERADO: erro de execução na linha 10
+// Erro de execução: o programa está certo, mas o segundo número da Entrada
+// é 0. A divisão por zero só aparece na hora de rodar, e o programa para.
+// Entrada: 10 e 0.
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ a, b;
+    QUER CONVERSAR COMIGO?(a, b);
+    TEMOS GRAVADO!("Dividindo", a, "por", b);
+    TEMOS GRAVADO!("Resultado:", a / b);
+FUGIU
+
+=== Entrada ===============================================================
+10
+0
+
+=== Resultado de: node tradutor.js testes/erros/execucao-1-divisao-por-zero.foge ===
+A tradução não teve erro. JavaScript gerado:
+
+'use strict';
+// Programa FogeScript traduzido para JavaScript (tradutor 1.2.0).
+// Contas com tipos garantidos pela análise semântica usam os operadores do JavaScript.
+// As outras chamam o runtime (foge.*), que confere os tipos na hora de rodar.
+// O último número de cada chamada foge.* é a linha do código FogeScript.
+
+// A SENHORA TRABALHA NA ASSEMBLEIA?
+function assembleia() {
+  let a;
+  let b;
+  a = foge.ler(8);
+  b = foge.ler(8);
+  foge.gravar("Dividindo", a, "por", b);
+  foge.gravar("Resultado:", foge.conta("/", a, b, 10));
+}
+assembleia();
+
+Saída de: node testes/resultados/execucao-1-divisao-por-zero.js
+Dividindo 10 por 0
+Erro de execução na linha 10: Divisão por zero! Nem a Assembleia aprova isso
+(código de saída 1)
+

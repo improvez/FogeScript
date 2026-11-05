@@ -1,0 +1,16 @@
+=== Código FogeScript (testes/erros/semantico-1-variavel-nao-declarada.foge) ===
+// ESPERADO: erro semântico na linha 9, coluna 20
+// Erro semântico: "totl" nunca foi declarada (erro de digitação de "total").
+// A gramática aceita o nome, mas a análise semântica não acha a declaração.
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ total = 0;
+    A SENHORA FEZ dias = 22;
+    total = dias * 8;
+    TEMOS GRAVADO!(totl);
+FUGIU
+
+=== Resultado de: node tradutor.js testes/erros/semantico-1-variavel-nao-declarada.foge ===
+Erro semântico na linha 9, coluna 20: A senhora nunca fez "totl". Declare antes com "A SENHORA FEZ totl". Você quis dizer "total"?
+  9 |     TEMOS GRAVADO!(totl);
+    |                    ^

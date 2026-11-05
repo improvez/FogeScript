@@ -1,0 +1,11 @@
+// ESPERADO: erro semântico na linha 10, coluna 20
+// Erro semântico: a função SOMAR recebe dois valores, mas foi chamada com um.
+
+NÃO, EU NUNCA FIZ ISSO SOMAR(A, B)
+    CHEGA DE CORRER A + B;
+FUGIU
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    TEMOS GRAVADO!(SOMAR(1, 2));
+    TEMOS GRAVADO!(SOMAR(1));
+FUGIU

@@ -1,0 +1,115 @@
+=== Código FogeScript (testes/validos/01-tipos-e-operadores.foge) =========
+/*
+    Teste 1: tipos de dados, operadores e comentários.
+    Usa número inteiro, número com casas decimais, texto, booleano e lista,
+    as quatro operações, o resto da divisão, as comparações e a lógica.
+*/
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    // tipos
+    A SENHORA FEZ dias = 22;                              // número inteiro
+    A SENHORA FEZ salario = 8800.50;                      // número com casas decimais
+    A SENHORA FEZ nome = "Dona Cida";                     // texto
+    A SENHORA FEZ correu = TÁ GRAVADO;                    // booleano
+    A SENHORA FEZ provas = ["vídeo", "foto", "ponto"];    // lista
+
+    TEMOS GRAVADO!("Nome:", nome, "| dias:", dias, "| salário:", salario);
+    TEMOS GRAVADO!("Correu?", correu, "| provas:", provas, "| quantas:", TAMANHO(provas));
+
+    // contas
+    TEMOS GRAVADO!("10 + 3 =", 10 + 3);
+    TEMOS GRAVADO!("10 - 3 =", 10 - 3);
+    TEMOS GRAVADO!("10 * 3 =", 10 * 3);
+    TEMOS GRAVADO!("10 / 4 =", 10 / 4);
+    TEMOS GRAVADO!("10 % 3 =", 10 % 3);
+    TEMOS GRAVADO!("2 + 3 * 4 =", 2 + 3 * 4, "| (2 + 3) * 4 =", (2 + 3) * 4);
+    TEMOS GRAVADO!("Por dia:", INTEIRO(salario / dias));
+
+    // comparações
+    TEMOS GRAVADO!("5 == 5:", 5 == 5, "| 5 != 5:", 5 != 5);
+    TEMOS GRAVADO!("3 < 7:", 3 < 7, "| 3 > 7:", 3 > 7);
+    TEMOS GRAVADO!("7 <= 7:", 7 <= 7, "| 8 >= 9:", 8 >= 9);
+    TEMOS GRAVADO!("\"ana\" < \"beto\":", "ana" < "beto");
+
+    // lógica
+    TEMOS GRAVADO!("e:", correu && dias > 20, "| ou:", NÃO TÁ GRAVADO || correu, "| não:", !correu);
+
+    // textos
+    A SENHORA FEZ frase = "A senhora " + "trabalha " + "na Assembleia?";
+    TEMOS GRAVADO!(frase, "(" + TEXTO(TAMANHO(frase)) + " letras)");
+    TEMOS GRAVADO!("Primeira letra:", nome[0]);
+
+    // atalhos
+    A SENHORA FEZ x = 10;
+    x += 5;
+    x -= 3;
+    x *= 2;
+    x++;
+    TEMOS GRAVADO!("x =", x);
+FUGIU
+
+=== Entrada ===============================================================
+(nenhuma)
+
+=== JavaScript gerado: node tradutor.js testes/validos/01-tipos-e-operadores.foge ===
+// O arquivo completo é testes/resultados/01-tipos-e-operadores.js: este programa mais o runtime (funções foge.*).
+
+'use strict';
+// Programa FogeScript traduzido para JavaScript (tradutor 1.2.0).
+// Contas com tipos garantidos pela análise semântica usam os operadores do JavaScript.
+// As outras chamam o runtime (foge.*), que confere os tipos na hora de rodar.
+// O último número de cada chamada foge.* é a linha do código FogeScript.
+
+// A SENHORA TRABALHA NA ASSEMBLEIA?
+function assembleia() {
+  let dias = 22;
+  let salario = 8800.5;
+  let nome = "Dona Cida";
+  let correu = true;
+  let provas = ["vídeo", "foto", "ponto"];
+  foge.gravar("Nome:", nome, "| dias:", dias, "| salário:", salario);
+  foge.gravar("Correu?", correu, "| provas:", foge.formatar(provas), "| quantas:", foge.chamar("TAMANHO", [provas], 15));
+  foge.gravar("10 + 3 =", 10 + 3);
+  foge.gravar("10 - 3 =", 10 - 3);
+  foge.gravar("10 * 3 =", 10 * 3);
+  foge.gravar("10 / 4 =", 10 / 4);
+  foge.gravar("10 % 3 =", 10 % 3);
+  foge.gravar("2 + 3 * 4 =", 2 + 3 * 4, "| (2 + 3) * 4 =", (2 + 3) * 4);
+  foge.gravar("Por dia:", foge.chamar("INTEIRO", [foge.conta("/", salario, dias, 24)], 24));
+  foge.gravar("5 == 5:", 5 === 5, "| 5 != 5:", 5 !== 5);
+  foge.gravar("3 < 7:", 3 < 7, "| 3 > 7:", 3 > 7);
+  foge.gravar("7 <= 7:", 7 <= 7, "| 8 >= 9:", 8 >= 9);
+  foge.gravar("\"ana\" < \"beto\":", "ana" < "beto");
+  foge.gravar("e:", correu && dias > 20, "| ou:", false || correu, "| não:", !correu);
+  let frase = "A senhora " + "trabalha " + "na Assembleia?";
+  foge.gravar(frase, "(" + foge.chamar("TEXTO", [foge.chamar("TAMANHO", [frase], 37)], 37) + " letras)");
+  foge.gravar("Primeira letra:", foge.item(nome, 0, 38));
+  let x = 10;
+  x += 5;
+  x -= 3;
+  x *= 2;
+  x++;
+  foge.gravar("x =", x);
+}
+assembleia();
+
+=== Saída de: node testes/resultados/01-tipos-e-operadores.js =============
+Nome: Dona Cida | dias: 22 | salário: 8800.5
+Correu? TÁ GRAVADO | provas: ["vídeo", "foto", "ponto"] | quantas: 3
+10 + 3 = 13
+10 - 3 = 7
+10 * 3 = 30
+10 / 4 = 2.5
+10 % 3 = 1
+2 + 3 * 4 = 14 | (2 + 3) * 4 = 20
+Por dia: 400
+5 == 5: TÁ GRAVADO | 5 != 5: NÃO TÁ GRAVADO
+3 < 7: TÁ GRAVADO | 3 > 7: NÃO TÁ GRAVADO
+7 <= 7: TÁ GRAVADO | 8 >= 9: NÃO TÁ GRAVADO
+"ana" < "beto": TÁ GRAVADO
+e: TÁ GRAVADO | ou: TÁ GRAVADO | não: NÃO TÁ GRAVADO
+A senhora trabalha na Assembleia? (33 letras)
+Primeira letra: D
+x = 25
+
+=== Conferência ===========================================================
+igual à saída esperada nos três jeitos de rodar (interpretador, site e Node)

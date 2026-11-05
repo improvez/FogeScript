@@ -1,0 +1,37 @@
+/*
+    Teste 4: funções recursivas, variável global e escopo de bloco.
+*/
+A SENHORA FEZ chamadas = 0;    // global: as funções também enxergam
+
+NÃO, EU NUNCA FIZ ISSO fibonacci(n)
+    chamadas++;
+    SE A SENHORA NÃO É FUNCIONÁRIA (n < 2)
+        CHEGA DE CORRER n;
+    FUGIU
+    CHEGA DE CORRER fibonacci(n - 1) + fibonacci(n - 2);
+FUGIU
+
+NÃO, EU NUNCA FIZ ISSO mdc(a, b)
+    ENQUANTO TIVER CORRENDO (b != 0)
+        A SENHORA FEZ resto = a % b;
+        a = b;
+        b = resto;
+    FUGIU
+    CHEGA DE CORRER a;
+FUGIU
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    SENHORA? SENHORA?! (A SENHORA FEZ i = 0; i <= 10; i++)
+        TEMOS GRAVADO!("fibonacci(" + TEXTO(i) + ") =", fibonacci(i));
+    FUGIU
+    TEMOS GRAVADO!("A função foi chamada", chamadas, "vezes.");
+    TEMOS GRAVADO!("mdc(84, 36) =", CHAMA A SENHORA mdc(84, 36));
+
+    // escopo: o x de dentro do bloco não muda o x de fora
+    A SENHORA FEZ x = "fora";
+    SE A SENHORA NÃO É FUNCIONÁRIA (TÁ GRAVADO)
+        A SENHORA FEZ x = "dentro";
+        TEMOS GRAVADO!("No bloco:", x);
+    FUGIU
+    TEMOS GRAVADO!("Depois do bloco:", x);
+FUGIU

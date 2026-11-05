@@ -1,0 +1,8 @@
+// ESPERADO: erro semântico na linha 7, coluna 39
+// Erro semântico: "idade" é um texto (recebeu "trinta"), e não dá para
+// multiplicar texto. O analisador deduz o tipo da variável pelo valor dela.
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ idade = "trinta";
+    TEMOS GRAVADO!("Em dobro:", idade * 2);
+FUGIU

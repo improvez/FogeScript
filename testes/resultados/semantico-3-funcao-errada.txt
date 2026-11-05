@@ -1,0 +1,17 @@
+=== Código FogeScript (testes/erros/semantico-3-funcao-errada.foge) =======
+// ESPERADO: erro semântico na linha 10, coluna 20
+// Erro semântico: a função SOMAR recebe dois valores, mas foi chamada com um.
+
+NÃO, EU NUNCA FIZ ISSO SOMAR(A, B)
+    CHEGA DE CORRER A + B;
+FUGIU
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    TEMOS GRAVADO!(SOMAR(1, 2));
+    TEMOS GRAVADO!(SOMAR(1));
+FUGIU
+
+=== Resultado de: node tradutor.js testes/erros/semantico-3-funcao-errada.foge ===
+Erro semântico na linha 10, coluna 20: A função "SOMAR" espera 2 valor(es), mas recebeu 1
+  10 |     TEMOS GRAVADO!(SOMAR(1));
+     |                    ^

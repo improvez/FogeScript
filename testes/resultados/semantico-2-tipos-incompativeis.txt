@@ -1,0 +1,14 @@
+=== Código FogeScript (testes/erros/semantico-2-tipos-incompativeis.foge) ===
+// ESPERADO: erro semântico na linha 7, coluna 39
+// Erro semântico: "idade" é um texto (recebeu "trinta"), e não dá para
+// multiplicar texto. O analisador deduz o tipo da variável pelo valor dela.
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ idade = "trinta";
+    TEMOS GRAVADO!("Em dobro:", idade * 2);
+FUGIU
+
+=== Resultado de: node tradutor.js testes/erros/semantico-2-tipos-incompativeis.foge ===
+Erro semântico na linha 7, coluna 39: A conta "*" só funciona com números, e recebeu texto e número
+  7 |     TEMOS GRAVADO!("Em dobro:", idade * 2);
+    |                                       ^

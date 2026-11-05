@@ -1,0 +1,15 @@
+=== Código FogeScript (testes/erros/semantico-5-volta-aqui-fora-do-laco.foge) ===
+// ESPERADO: erro semântico na linha 7, coluna 9
+// Erro semântico: VOLTA AQUI! (break) só faz sentido dentro de um laço.
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ x = 5;
+    SE A SENHORA NÃO É FUNCIONÁRIA (x > 3)
+        VOLTA AQUI!;
+    FUGIU
+FUGIU
+
+=== Resultado de: node tradutor.js testes/erros/semantico-5-volta-aqui-fora-do-laco.foge ===
+Erro semântico na linha 7, coluna 9: "VOLTA AQUI!" só pode ser usado dentro de um laço
+  7 |         VOLTA AQUI!;
+    |         ^

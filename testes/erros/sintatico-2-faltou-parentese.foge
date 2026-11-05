@@ -1,0 +1,9 @@
+// ESPERADO: erro sintático na linha 6, coluna 45
+// Erro sintático: a condição abre "(" e não fecha. O erro aponta para o fim
+// da linha, onde o ")" deveria estar.
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    SE A SENHORA NÃO É FUNCIONÁRIA (20 >= 18
+        TEMOS GRAVADO!("Maior de idade");
+    FUGIU
+FUGIU

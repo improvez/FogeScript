@@ -1,0 +1,32 @@
+FogeScript 1.2.0: resultado dos testes
+
+Programas válidos:  5/5
+Programas com erro: 12/12
+Exemplos do site:   7/7
+
+ok     validos   01-tipos-e-operadores  (saída igual à esperada)
+ok     validos   02-adivinhacao  (saída igual à esperada)
+ok     validos   03-folha-de-ponto  (saída igual à esperada)
+ok     validos   04-recursao-e-escopo  (saída igual à esperada)
+ok     validos   05-tratamento-de-erros  (saída igual à esperada)
+ok     erros     execucao-1-divisao-por-zero  (de execução, linha 10)
+ok     erros     lexico-1-simbolo-estranho  (léxico, linha 6, coluna 30)
+ok     erros     lexico-2-texto-sem-fechar  (léxico, linha 5, coluna 20)
+ok     erros     lexico-3-nome-com-numero  (léxico, linha 5, coluna 19)
+ok     erros     semantico-1-variavel-nao-declarada  (semântico, linha 9, coluna 20)
+ok     erros     semantico-2-tipos-incompativeis  (semântico, linha 7, coluna 39)
+ok     erros     semantico-3-funcao-errada  (semântico, linha 10, coluna 20)
+ok     erros     semantico-4-declarada-duas-vezes  (semântico, linha 6, coluna 19)
+ok     erros     semantico-5-volta-aqui-fora-do-laco  (semântico, linha 7, coluna 9)
+ok     erros     sintatico-1-faltou-fugiu  (sintático, linha 11, coluna 10)
+ok     erros     sintatico-2-faltou-parentese  (sintático, linha 6, coluna 45)
+ok     erros     sintatico-3-comando-incompleto  (sintático, linha 5, coluna 29)
+ok     exemplos  erros  (os três jeitos de rodar deram a mesma saída)
+ok     exemplos  fatorial  (os três jeitos de rodar deram a mesma saída)
+ok     exemplos  fizzbuzz  (os três jeitos de rodar deram a mesma saída)
+ok     exemplos  flagrante  (os três jeitos de rodar deram a mesma saída)
+ok     exemplos  listas  (os três jeitos de rodar deram a mesma saída)
+ok     exemplos  ola  (os três jeitos de rodar deram a mesma saída)
+ok     exemplos  somador  (os três jeitos de rodar deram a mesma saída)
+
+Todos os testes passaram.

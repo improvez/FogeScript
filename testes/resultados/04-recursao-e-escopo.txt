@@ -1,0 +1,111 @@
+=== Código FogeScript (testes/validos/04-recursao-e-escopo.foge) ==========
+/*
+    Teste 4: funções recursivas, variável global e escopo de bloco.
+*/
+A SENHORA FEZ chamadas = 0;    // global: as funções também enxergam
+
+NÃO, EU NUNCA FIZ ISSO fibonacci(n)
+    chamadas++;
+    SE A SENHORA NÃO É FUNCIONÁRIA (n < 2)
+        CHEGA DE CORRER n;
+    FUGIU
+    CHEGA DE CORRER fibonacci(n - 1) + fibonacci(n - 2);
+FUGIU
+
+NÃO, EU NUNCA FIZ ISSO mdc(a, b)
+    ENQUANTO TIVER CORRENDO (b != 0)
+        A SENHORA FEZ resto = a % b;
+        a = b;
+        b = resto;
+    FUGIU
+    CHEGA DE CORRER a;
+FUGIU
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    SENHORA? SENHORA?! (A SENHORA FEZ i = 0; i <= 10; i++)
+        TEMOS GRAVADO!("fibonacci(" + TEXTO(i) + ") =", fibonacci(i));
+    FUGIU
+    TEMOS GRAVADO!("A função foi chamada", chamadas, "vezes.");
+    TEMOS GRAVADO!("mdc(84, 36) =", CHAMA A SENHORA mdc(84, 36));
+
+    // escopo: o x de dentro do bloco não muda o x de fora
+    A SENHORA FEZ x = "fora";
+    SE A SENHORA NÃO É FUNCIONÁRIA (TÁ GRAVADO)
+        A SENHORA FEZ x = "dentro";
+        TEMOS GRAVADO!("No bloco:", x);
+    FUGIU
+    TEMOS GRAVADO!("Depois do bloco:", x);
+FUGIU
+
+=== Entrada ===============================================================
+(nenhuma)
+
+=== JavaScript gerado: node tradutor.js testes/validos/04-recursao-e-escopo.foge ===
+// O arquivo completo é testes/resultados/04-recursao-e-escopo.js: este programa mais o runtime (funções foge.*).
+
+'use strict';
+// Programa FogeScript traduzido para JavaScript (tradutor 1.2.0).
+// Contas com tipos garantidos pela análise semântica usam os operadores do JavaScript.
+// As outras chamam o runtime (foge.*), que confere os tipos na hora de rodar.
+// O último número de cada chamada foge.* é a linha do código FogeScript.
+
+// Funções (NÃO, EU NUNCA FIZ ISSO)
+function fibonacci(n) {
+  chamadas++;
+  if (foge.conta("<", n, 2, 8)) {
+    return n;
+  }
+  return foge.conta("+", foge.chamar("fibonacci", [foge.conta("-", n, 1, 11)], 11), foge.chamar("fibonacci", [foge.conta("-", n, 2, 11)], 11), 11);
+}
+foge.funcao("fibonacci", fibonacci);
+
+function mdc(a, b) {
+  while (b !== 0) {
+    foge.passo(15);
+    let resto = foge.conta("%", a, b, 16);
+    a = b;
+    b = resto;
+  }
+  return a;
+}
+foge.funcao("mdc", mdc);
+
+// Variáveis globais
+let chamadas = 0;
+
+// A SENHORA TRABALHA NA ASSEMBLEIA?
+function assembleia() {
+  for (let i = 0; i <= 10; i++) {
+    foge.passo(24);
+    foge.gravar("fibonacci(" + foge.chamar("TEXTO", [i], 25) + ") =", foge.chamar("fibonacci", [i], 25));
+  }
+  foge.gravar("A função foi chamada", chamadas, "vezes.");
+  foge.gravar("mdc(84, 36) =", foge.chamar("mdc", [84, 36], 28));
+  let x = "fora";
+  if (true) {
+    let x_2 = "dentro";
+    foge.gravar("No bloco:", x_2);
+  }
+  foge.gravar("Depois do bloco:", x);
+}
+assembleia();
+
+=== Saída de: node testes/resultados/04-recursao-e-escopo.js ==============
+fibonacci(0) = 0
+fibonacci(1) = 1
+fibonacci(2) = 1
+fibonacci(3) = 2
+fibonacci(4) = 3
+fibonacci(5) = 5
+fibonacci(6) = 8
+fibonacci(7) = 13
+fibonacci(8) = 21
+fibonacci(9) = 34
+fibonacci(10) = 55
+A função foi chamada 453 vezes.
+mdc(84, 36) = 12
+No bloco: dentro
+Depois do bloco: fora
+
+=== Conferência ===========================================================
+igual à saída esperada nos três jeitos de rodar (interpretador, site e Node)

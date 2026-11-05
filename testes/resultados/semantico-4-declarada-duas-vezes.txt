@@ -1,0 +1,14 @@
+=== Código FogeScript (testes/erros/semantico-4-declarada-duas-vezes.foge) ===
+// ESPERADO: erro semântico na linha 6, coluna 19
+// Erro semântico: "nome" foi declarada duas vezes no mesmo bloco.
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ nome = "Dona Cida";
+    A SENHORA FEZ nome = "Senhora";
+    TEMOS GRAVADO!(nome);
+FUGIU
+
+=== Resultado de: node tradutor.js testes/erros/semantico-4-declarada-duas-vezes.foge ===
+Erro semântico na linha 6, coluna 19: A senhora já fez "nome" neste bloco (na linha 5). Não dá para declarar de novo
+  6 |     A SENHORA FEZ nome = "Senhora";
+    |                   ^

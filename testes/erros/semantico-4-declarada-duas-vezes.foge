@@ -1,0 +1,8 @@
+// ESPERADO: erro semântico na linha 6, coluna 19
+// Erro semântico: "nome" foi declarada duas vezes no mesmo bloco.
+
+A SENHORA TRABALHA NA ASSEMBLEIA?
+    A SENHORA FEZ nome = "Dona Cida";
+    A SENHORA FEZ nome = "Senhora";
+    TEMOS GRAVADO!(nome);
+FUGIU
